@@ -1,0 +1,39 @@
+/* 编辑器容器 */
+.editor-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+/* 画布样式 */
+.editor-canvas {
+    max-width: 100%;
+    border-radius: var(--border-radius);
+    margin-bottom: 16px;
+}
+
+/* 控制按钮 */
+.editor-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.control-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: var(--primary);
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.control-btn:hover {
+    opacity: 0.9;
+}
+
+.editor-placeholder {
+    content: "Edit image";
+} 

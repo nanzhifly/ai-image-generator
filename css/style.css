@@ -1,0 +1,356 @@
+/* 基础样式 */
+:root {
+    --primary: #0066CC;
+    --text: #333333;
+    --border: #E5E5E7;
+    --background: #FFFFFF;
+    --background-gray: #F5F5F7;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    color: var(--text);
+}
+
+/* 输入区域 */
+.input-section {
+    margin-bottom: 40px;
+}
+
+textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-size: 16px;
+    resize: vertical;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.char-count {
+    text-align: right;
+    color: #666;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.primary-btn {
+    display: block;
+    width: 200px;
+    padding: 12px 24px;
+    margin: 0 auto;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.3s;
+}
+
+.primary-btn:hover {
+    opacity: 0.9;
+}
+
+.primary-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 加载状态 */
+.loading {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.generated-image {
+    max-width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* 错误提示 */
+.error-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff3b30;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translate(-50%, 100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+/* 成功提示 */
+.success-message {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(52, 199, 89, 0.9);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-size: 14px;
+    text-align: center;
+    animation: slideUp 0.3s ease-out;
+    z-index: 1000;
+}
+
+/* 图片区域 */
+.image-section {
+    width: 100%;
+}
+
+.image-container {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.image-container img {
+    max-width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.placeholder {
+    color: #666;
+    font-size: 14px;
+    content: "Click to generate";
+}
+
+/* 图片信息显示 */
+.image-info {
+    margin-top: 8px;
+    padding: 8px 16px;
+    background: var(--background-gray);
+    border-radius: 8px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+/* 图片编辑区域 */
+.edit-controls {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.edit-btn {
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.edit-btn:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .container {
+        margin: 20px auto;
+    }
+
+    h1 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .primary-btn {
+        width: 100%;
+    }
+
+    /* 移动端编辑按钮优化 */
+    .edit-controls {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .edit-btn {
+        flex: 1;
+        min-width: calc(50% - 8px);
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+
+    /* 移动端图片容器优化 */
+    .image-container {
+        min-height: 250px;
+    }
+
+    /* 移动端加载提示优化 */
+    .loading-placeholder {
+        padding: 20px;
+    }
+
+    /* 移动端消息提示优化 */
+    .error-message,
+    .success-message {
+        width: 90%;
+        max-width: none;
+        font-size: 13px;
+    }
+}
+
+/* 按钮点击效果 */
+.primary-btn:active,
+.edit-btn:active {
+    transform: scale(0.98);
+}
+
+/* 开发功能页面样式 */
+.test-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background: var(--background-gray);
+    border-radius: 12px;
+}
+
+.test-section h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+}
+
+.test-card {
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.test-input {
+    width: 100%;
+    min-height: 80px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    resize: vertical;
+}
+
+.test-btn {
+    padding: 8px 16px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-right: 8px;
+    font-size: 14px;
+}
+
+.test-result {
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--background-gray);
+    border-radius: 8px;
+    font-size: 14px;
+    min-height: 42px;
+}
+
+.test-controls {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.success {
+    color: #34c759;
+}
+
+.error {
+    color: #ff3b30;
+}
+
+/* 风格选择器 */
+.style-select {
+    width: 200px;
+    margin: 0 auto 20px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    display: block;
+}
+
+.style-select:focus {
+    border-color: var(--primary);
+    outline: none;
+}
+
+.loading-text {
+    content: "Generating...";
+}
+
+/* 按钮状态 */
+.primary-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}

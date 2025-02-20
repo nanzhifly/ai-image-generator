@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.local
+.env.production
+.env.development
+.vercel
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+pm2.log
+npm-debug.log*
+
+# Build
+dist/
+build/
+
+# 系统文件
+.DS_Store
+Thumbs.db

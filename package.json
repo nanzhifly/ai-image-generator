@@ -1,0 +1,29 @@
+{
+  "name": "deepseek-image-generator",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "基于 DeepSeek API 的简单图片生成工具",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "next build",
+    "deploy": "vercel --prod",
+    "preview": "vercel"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
