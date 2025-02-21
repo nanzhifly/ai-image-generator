@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "build": "next build",
+    "build": "echo 'No build step'",
     "deploy": "vercel --prod",
     "preview": "vercel"
   },

@@ -4,11 +4,14 @@
   "outputDirectory": ".",
   "builds": [
     { "src": "index.html", "use": "@vercel/static" },
+    { "src": "src/**", "use": "@vercel/static" },
     { "src": "server.js", "use": "@vercel/node" }
   ],
   "routes": [
+    { "src": "/proxy-image", "dest": "/server.js" },
     { "src": "/api/(.*)", "dest": "/server.js" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
   "env": {
     "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"
