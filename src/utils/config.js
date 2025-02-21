@@ -3,7 +3,7 @@
  */
 export const CONFIG = {
     API_URL: 'https://api.siliconflow.cn/v1/images/generations',
-    API_KEY: process.env.DEEPSEEK_API_KEY,
+    API_KEY: window.__ENV__?.DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY,
     MAX_LENGTH: 1000,
     
     // 超时配置
