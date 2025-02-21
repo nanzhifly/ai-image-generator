@@ -71,6 +71,30 @@ vercel.json 配置示例：
    - 检查模块导入导出
    - 确认路由配置正确
 
+### 文件说明
+```
+index.html   - 静态前端文件
+server.js    - API 服务器
+vercel.json  - 部署配置
+```
+
+### 部署原理
+1. 静态文件处理
+   - index.html 由 @vercel/static 处理
+   - 支持浏览器缓存
+   - 通过 CDN 分发
+
+2. API 服务
+   - server.js 由 @vercel/node 处理
+   - 处理所有 API 请求
+   - 提供代理服务
+
+### 部署步骤
+```bash
+# 一键部署
+vercel --prod
+```
+
 ## 功能
 - 文本生成图片
 - 支持三种风格：照片/卡通/艺术
