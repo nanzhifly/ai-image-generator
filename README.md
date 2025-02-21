@@ -2,6 +2,61 @@
 
 基于 DeepSeek API 的简单图片生成工具。
 
+## 部署指南
+### 部署方式选择
+本项目支持两种部署方式，建议选择其中一种并始终使用该方式：
+
+1. CLI 部署（推荐）
+  ```bash
+  # 1. 安装 Vercel CLI
+  npm install -g vercel
+  
+  # 2. 登录 Vercel
+  vercel login
+  
+  # 3. 关联项目
+  vercel link
+  
+  # 4. 部署到生产环境
+  vercel --prod
+  ```
+
+2. 网页部署
+  - 访问 [Vercel Dashboard](https://vercel.com/dashboard)
+  - 导入 GitHub 项目
+  - 配置部署选项
+  - 点击部署
+
+### 环境变量配置
+项目使用以下环境变量：
+```
+DEEPSEEK_API_KEY=your_api_key    # DeepSeek API 密钥
+```
+
+配置方式：
+1. 在 Vercel Dashboard 设置
+2. 或在 .env.local 文件中设置（本地开发）
+
+### 配置文件说明
+vercel.json 配置示例：
+```json
+{
+  "env": {
+    "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"  // 使用环境变量语法
+  }
+}
+```
+
+### 常见问题
+1. 环境变量问题
+  - 确保使用正确的语法引用环境变量
+  - 避免混用 @secret 和 ${} 语法
+
+2. 部署失败
+  - 检查环境变量配置
+  - 验证 vercel.json 语法
+  - 确认项目关联状态
+
 ## 功能
 - 文本生成图片
 - 支持三种风格：照片/卡通/艺术
