@@ -32,7 +32,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-// 3. 图片代理路由（放在通配符路由之前）
+// 3. 图片代理路由
 app.get('/proxy-image', async (req, res) => {
     try {
         const imageUrl = decodeURIComponent(req.query.url);
@@ -40,20 +40,23 @@ app.get('/proxy-image', async (req, res) => {
             'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
             'Origin': 'https://api.siliconflow.cn',
             'Referer': 'https://api.siliconflow.cn/',
-            'User-Agent': 'DeepSeek-Image-Generator'
+            'User-Agent': 'Mozilla/5.0'
         };
         
         console.log('代理请求:', imageUrl);
         
         const response = await fetch(imageUrl, {
             headers: ossHeaders,
-            timeout: 30000
+            timeout: 60000
         });
         
         if (!response.ok) {
+            console.error('图片加载失败:', response.status, response.statusText);
             throw new Error(`图片加载失败: ${response.status}`);
         }
         
+        // 设置缓存头
+        res.set('Cache-Control', 'public, max-age=31536000');
         res.set('Content-Type', response.headers.get('content-type'));
         response.body.pipe(res);
     } catch (error) {

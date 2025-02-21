@@ -364,8 +364,13 @@
 
             // 显示生成的图片
             const img = document.createElement('img');
-            img.src = data.url;
+            img.src = `/proxy-image?url=${encodeURIComponent(data.url)}`;
             img.alt = promptInput.value;
+            img.onerror = function() {
+              console.error('图片加载失败');
+              placeholder.textContent = '图片加载失败，请重试';
+              placeholder.style.color = '#d32f2f';
+            };
             resultImage.appendChild(img);
             placeholder.style.display = 'none';
             downloadBtn.style.display = 'block';
