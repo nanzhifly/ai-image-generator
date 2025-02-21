@@ -152,9 +152,10 @@ app.post('/api/generate', async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'Accept': 'application/json'  // 明确要求 JSON 响应
       },
       body: JSON.stringify({
-        model: 'deepseek-api/image-gen',  // 正确的模型名称
+        model: 'deepseek-api/image-gen',
         prompt: finalPrompt,
         n: 1,
         size: "384x384"
@@ -162,14 +163,25 @@ app.post('/api/generate', async (req, res) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+      // 先获取原始响应文本
+      const responseText = await response.text();
+      let errorData = {};
+      
+      try {
+        // 尝试解析为 JSON
+        errorData = JSON.parse(responseText);
+      } catch (e) {
+        // 如果解析失败，使用原始文本
+        errorData = { error: responseText };
+      }
+      
       console.error('API 错误:', {
         status: response.status,
         statusText: response.statusText,
         url: response.url,
         prompt: finalPrompt,
-        error: errorData.error,
-        requestBody: JSON.stringify({  // 记录请求体用于调试
+        error: errorData.error || responseText,
+        requestBody: JSON.stringify({
           model: 'deepseek-api/image-gen',
           prompt: finalPrompt,
           n: 1,
@@ -179,10 +191,20 @@ app.post('/api/generate', async (req, res) => {
       throw new Error(`Image generation failed: ${response.status}`);
     }
 
-    const data = await response.json();
+    // 先获取响应文本
+    const responseText = await response.text();
+    let data;
+    try {
+      // 尝试解析为 JSON
+      data = JSON.parse(responseText);
+    } catch (e) {
+      console.error('JSON 解析错误:', e);
+      throw new Error('Invalid JSON response from server');
+    }
+    
     console.log('API 响应:', data);
     res.json({
-      url: data.data?.[0]?.url || data.url,  // 适配新的返回格式
+      url: data.data?.[0]?.url || data.url,
       prompt: finalPrompt
     });
   } catch (error) {
