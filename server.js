@@ -72,9 +72,44 @@ app.get('/proxy-image', async (req, res) => {
     }
 });
 
+// API 密钥验证
+async function validateApiKey(apiKey) {
+  try {
+    // 测试 API 密钥
+    const response = await fetch('https://api.siliconflow.cn/v1/models', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API key validation failed: ${response.status}`);
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('API key validation error:', error);
+    return false;
+  }
+}
+
 // 4. API 生成路由
 app.post('/api/generate', async (req, res) => {
   try {
+    // 验证 API 密钥
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      throw new Error('API key not found');
+    }
+    
+    // 验证 API 密钥有效性
+    const isValidKey = await validateApiKey(apiKey);
+    if (!isValidKey) {
+      throw new Error('Invalid API key');
+    }
+
     const { prompt, style } = req.body;
     
     // 根据风格添加提示词
@@ -97,7 +132,7 @@ app.post('/api/generate', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'Authorization': `Bearer ${apiKey}`,
         'User-Agent': 'DeepSeek-Image-Generator',
         'Origin': 'https://api.siliconflow.cn',
         'Referer': 'https://api.siliconflow.cn/'
@@ -117,9 +152,10 @@ app.post('/api/generate', async (req, res) => {
         status: response.status,
         statusText: response.statusText,
         url: response.url,
-        prompt: finalPrompt  // 记录完整提示词
+        prompt: finalPrompt,
+        keyValid: isValidKey
       });
-      throw new Error(`图片生成失败: ${response.status}`);
+      throw new Error(`Image generation failed: ${response.status}`);
     }
 
     const data = await response.json();
@@ -131,7 +167,7 @@ app.post('/api/generate', async (req, res) => {
   } catch (error) {
     console.error('生成错误:', error);
     res.status(500).json({ 
-      error: '图片生成失败',
+      error: 'Failed to generate image',
       details: error.message,
       timestamp: new Date().toISOString()
     });
