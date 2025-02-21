@@ -322,12 +322,13 @@
 
       // 页面加载完成后执行
       window.onload = function() {
+        // 获取 DOM 元素
         const promptInput = document.getElementById('prompt-input');
         const styleSelect = document.getElementById('style-select');
         const generateBtn = document.getElementById('generate-btn');
         const imageContainer = document.getElementById('image-container');
         const downloadBtn = document.getElementById('download-btn');
-        const placeholder = imageContainer.querySelector('.placeholder');
+        const placeholder = document.querySelector('.placeholder');
         const progressContainer = imageContainer.querySelector('.progress-container');
         const resultImage = imageContainer.querySelector('.result-image');
         const charCount = document.querySelector('.char-count');
@@ -340,11 +341,6 @@
 
         // 图片生成函数
         async function generateImage() {
-          const promptInput = document.getElementById('prompt-input');
-          const styleSelect = document.getElementById('style-select');
-          const generateBtn = document.getElementById('generate-btn');
-          const placeholder = document.querySelector('.placeholder');
-          const resultImage = document.querySelector('.result-image');
           const maxRetries = 2;
           const timeout = 30000;
           
@@ -438,17 +434,17 @@
         
         // 绑定生成按钮事件
         generateBtn.addEventListener('click', generateImage);
+        
+        // 显示错误信息
+        function showError(title, message) {
+          placeholder.innerHTML = `
+            <div class="error-container">
+              <h3>${title}</h3>
+              <p>${message}</p>
+            </div>
+          `;
+        }
       };
-
-      // 显示错误信息
-      function showError(title, message) {
-        placeholder.innerHTML = `
-          <div class="error-container">
-            <h3>${title}</h3>
-            <p>${message}</p>
-          </div>
-        `;
-      }
     </script>
 </head>
 <body>
