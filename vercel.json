@@ -12,5 +12,10 @@
   ],
   "env": {
     "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"
+  },
+  "build": {
+    "env": {
+      "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"
+    }
   }
 } 

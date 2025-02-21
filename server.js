@@ -72,6 +72,33 @@ app.get('/proxy-image', async (req, res) => {
     }
 });
 
+// 环境变量检查
+function checkEnvironment() {
+  const requiredEnvVars = ['DEEPSEEK_API_KEY'];
+  const missingVars = [];
+
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      missingVars.push(envVar);
+    }
+  }
+
+  if (missingVars.length > 0) {
+    console.error('Missing required environment variables:', missingVars);
+    process.exit(1);
+  }
+
+  // 验证 API 密钥格式
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey.startsWith('sk-')) {
+    console.error('Invalid API key format. API key should start with "sk-"');
+    process.exit(1);
+  }
+}
+
+// 启动时检查环境
+checkEnvironment();
+
 // API 密钥验证
 async function validateApiKey(apiKey) {
   try {
@@ -98,6 +125,10 @@ async function validateApiKey(apiKey) {
 // 4. API 生成路由
 app.post('/api/generate', async (req, res) => {
   try {
+    // 记录 API 密钥前6位用于调试
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    console.log('Using API key:', apiKey.substring(0, 6) + '...');
+    
     const { prompt, style } = req.body;
     
     // 根据风格添加提示词
