@@ -4,7 +4,6 @@ import path from 'path';
 import fetch from 'node-fetch';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { CONFIG } from './src/utils/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -38,7 +37,7 @@ app.get('/proxy-image', async (req, res) => {
     try {
         const imageUrl = decodeURIComponent(req.query.url);
         const ossHeaders = {
-            'Authorization': `Bearer ${CONFIG.API_KEY}`,
+            'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
             'Origin': 'https://api.siliconflow.cn',
             'Referer': 'https://api.siliconflow.cn/',
             'User-Agent': 'DeepSeek-Image-Generator'
@@ -66,12 +65,42 @@ app.get('/proxy-image', async (req, res) => {
     }
 });
 
-// 4. 通配符路由放最后
+// 4. API 生成路由
+app.post('/api/generate', async (req, res) => {
+  try {
+    const { prompt, style } = req.body;
+    
+    // 调用 DeepSeek API
+    const response = await fetch('https://api.deepseek.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+      },
+      body: JSON.stringify({
+        prompt,
+        style,
+        n: 1
+      })
+    });
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Failed to generate image' });
+  }
+});
+
+// 5. 通配符路由放最后
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // 启动服务器
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
-}); 
+  console.log(`Server running at http://localhost:${port}`);
+});
+
+// 导出 app
+export default app; 
