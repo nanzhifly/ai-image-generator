@@ -4,6 +4,7 @@ import path from 'path';
 import fetch from 'node-fetch';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { API_CONFIG, ENV_CONFIG, LOG_CONFIG } from './src/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -74,7 +75,7 @@ app.get('/proxy-image', async (req, res) => {
 
 // 环境变量检查
 function checkEnvironment() {
-  const requiredEnvVars = ['DEEPSEEK_API_KEY'];
+  const requiredEnvVars = ENV_CONFIG.REQUIRED_VARS;
   const missingVars = [];
 
   for (const envVar of requiredEnvVars) {
@@ -90,8 +91,8 @@ function checkEnvironment() {
 
   // 验证 API 密钥格式
   const apiKey = process.env.DEEPSEEK_API_KEY;
-  if (!apiKey.startsWith('sk-')) {
-    console.error('Invalid API key format. API key should start with "sk-"');
+  if (!apiKey.startsWith(ENV_CONFIG.API_KEY_PREFIX)) {
+    console.error('Invalid API key format');
     process.exit(1);
   }
 }
@@ -147,12 +148,12 @@ app.post('/api/generate', async (req, res) => {
     });
     
     // 调用 DeepSeek API
-    const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+    const apiUrl = `${API_CONFIG.BASE_URL}/${API_CONFIG.VERSION}${API_CONFIG.ENDPOINTS.GENERATE}`;
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-        'Accept': 'application/json'  // 明确要求 JSON 响应
+        ...API_CONFIG.REQUEST.HEADERS,
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
       },
       body: JSON.stringify({
         model: 'deepseek-api/image-gen',
