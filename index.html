@@ -451,30 +451,38 @@
     <main class="container">
         <h1>DeepSeek Image Generator</h1>
         
-        <section class="input-section" aria-label="Image Generation Controls">
-            <textarea 
-                id="prompt-input"
-                placeholder="Describe the image you want to generate..."
-                maxlength="1000"
-                aria-label="Image description input"
-            ></textarea>
-            <div class="char-count">0/1000</div>
+        <div class="input-container">
+            <textarea id="prompt-input" placeholder="Enter your image description..." maxlength="1000"></textarea>
+            <span class="char-count">0/1000</span>
+            
             <select id="style-select" class="style-select">
                 <option value="photo">Realistic Photo</option>
                 <option value="art">Artistic Painting</option>
                 <option value="cartoon">Cartoon Style</option>
             </select>
+            
             <button id="generate-btn" class="primary-btn">Generate Image</button>
-        </section>
-
-        <section id="image-container" class="image-container" aria-label="Generated Image Display">
-            <div class="placeholder">Generated image will be displayed here</div>
-            <div class="progress-container" style="display: none;"></div>
-            <div class="result-image"></div>
-        </section>
-        <button id="download-btn" class="primary-btn download-btn" style="display: none;">
-            <span>Download Image</span>
-        </button>
+        </div>
+        
+        <div id="image-container" class="image-container">
+            <!-- 添加占位符容器 -->
+            <div class="placeholder">
+                <div class="loading-status">
+                    <div class="spinner"></div>
+                    <p>Ready to generate...</p>
+                </div>
+            </div>
+            
+            <!-- 添加进度条容器 -->
+            <div class="progress-container" style="display: none;">
+                <div class="progress-bar"></div>
+            </div>
+            
+            <!-- 添加结果图片容器 -->
+            <div class="result-image" style="display: none;"></div>
+        </div>
+        
+        <button id="download-btn" class="secondary-btn" style="display: none;">Download Image</button>
     </main>
 
     <footer class="footer">
