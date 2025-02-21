@@ -2,6 +2,12 @@
 
 基于 DeepSeek API 的简单图片生成工具。
 
+## MVP 版本说明
+为了快速验证和简化部署，当前版本：
+- 所有前端代码集成在 index.html
+- 简化了配置和部署流程
+- 保持核心功能完整
+
 ## 部署指南
 ### 部署方式选择
 本项目支持两种部署方式，建议选择其中一种并始终使用该方式：
@@ -28,14 +34,10 @@
   - 点击部署
 
 ### 环境变量配置
-项目使用以下环境变量：
+环境变量仅在服务器端使用：
 ```
-DEEPSEEK_API_KEY=your_api_key    # DeepSeek API 密钥
+DEEPSEEK_API_KEY=your_api_key
 ```
-
-配置方式：
-1. 在 Vercel Dashboard 设置
-2. 或在 .env.local 文件中设置（本地开发）
 
 ### 配置文件说明
 vercel.json 配置示例：
@@ -81,16 +83,10 @@ vercel.json 配置示例：
 ## MVP 方案
 ### 1. 项目结构
 ```
-project/
-├── README.md          # 基本说明
-├── index.html         # 主页面
-├── js/
-│   ├── config.js      # 基础配置
-│   ├── main.js        # 核心逻辑
-│   └── api.js         # API 调用
-├── css/
-│   └── styles.css     # 基础样式
-└── docs/             # 文档目录
+/
+├── index.html      # 包含所有前端代码
+├── server.js       # 服务器端代码
+└── vercel.json     # 部署配置
 ```
 
 ### 2. 核心功能
