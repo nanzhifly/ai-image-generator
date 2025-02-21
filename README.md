@@ -14,16 +14,7 @@
 
 1. CLI 部署（推荐）
   ```bash
-  # 1. 安装 Vercel CLI
-  npm install -g vercel
-  
-  # 2. 登录 Vercel
-  vercel login
-  
-  # 3. 关联项目
-  vercel link
-  
-  # 4. 部署到生产环境
+  # 一键部署
   vercel --prod
   ```
 
@@ -38,6 +29,11 @@
 ```
 DEEPSEEK_API_KEY=your_api_key
 ```
+
+### 开发说明
+- 无需构建步骤
+- 直接部署即可运行
+- 支持自动更新
 
 ### 配置文件说明
 vercel.json 配置示例：

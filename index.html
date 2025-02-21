@@ -308,7 +308,85 @@
             font-size: 14px;
         }
     </style>
-    <script type="module" src="/src/index.js"></script>
+    <script>
+      // 全局配置
+      const CONFIG = {
+        API_URL: 'https://api.siliconflow.cn/v1/images/generations',
+        MAX_LENGTH: 1000,
+        STYLES: {
+          photo: { name: 'Realistic Photo' },
+          art: { name: 'Artistic Painting' },
+          cartoon: { name: 'Cartoon Style' }
+        }
+      };
+
+      // 页面加载完成后执行
+      window.onload = function() {
+        const promptInput = document.getElementById('prompt-input');
+        const styleSelect = document.getElementById('style-select');
+        const generateBtn = document.getElementById('generate-btn');
+        const imageContainer = document.getElementById('image-container');
+        const downloadBtn = document.getElementById('download-btn');
+        const placeholder = imageContainer.querySelector('.placeholder');
+        const progressContainer = imageContainer.querySelector('.progress-container');
+        const resultImage = imageContainer.querySelector('.result-image');
+        const charCount = document.querySelector('.char-count');
+
+        // 更新字符计数
+        promptInput.addEventListener('input', function() {
+          const count = this.value.length;
+          charCount.textContent = `${count}/${CONFIG.MAX_LENGTH}`;
+        });
+
+        // 生成图片
+        generateBtn.onclick = async function() {
+          // 显示加载状态
+          generateBtn.disabled = true;
+          placeholder.style.display = 'block';
+          progressContainer.style.display = 'block';
+          resultImage.innerHTML = '';
+          downloadBtn.style.display = 'none';
+
+          try {
+            const response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                prompt: promptInput.value,
+                style: styleSelect.value
+              })
+            });
+            const data = await response.json();
+            
+            if (data.error) {
+              throw new Error(data.error);
+            }
+
+            // 显示生成的图片
+            const img = document.createElement('img');
+            img.src = data.url;
+            img.alt = promptInput.value;
+            resultImage.appendChild(img);
+            placeholder.style.display = 'none';
+            downloadBtn.style.display = 'block';
+            
+            // 设置下载按钮
+            downloadBtn.onclick = () => {
+              const link = document.createElement('a');
+              link.href = data.url;
+              link.download = 'generated-image.png';
+              link.click();
+            };
+          } catch (error) {
+            placeholder.textContent = `Error: ${error.message}`;
+            placeholder.style.color = '#d32f2f';
+          } finally {
+            generateBtn.disabled = false;
+            progressContainer.style.display = 'none';
+          }
+        };
+      };
+    </script>
 </head>
 <body>
     <main class="container">
