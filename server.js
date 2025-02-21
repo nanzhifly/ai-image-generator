@@ -112,7 +112,7 @@ app.post('/api/generate', async (req, res) => {
     
     console.log('生成请求:', {
       prompt: finalPrompt,
-      model: 'deepseek-api/janus-7b'  // 记录使用的模型
+      model: 'deepseek-api/image-gen'  // 记录使用的模型
     });
     
     // 调用 DeepSeek API
@@ -123,11 +123,10 @@ app.post('/api/generate', async (req, res) => {
         'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'deepseek-api/janus-7b',  // 添加必要的模型参数
+        model: 'deepseek-api/image-gen',  // 正确的模型名称
         prompt: finalPrompt,
         n: 1,
-        size: "384x384",
-        response_format: 'url'  // 指定返回格式
+        size: "384x384"
       })
     });
 
@@ -138,7 +137,13 @@ app.post('/api/generate', async (req, res) => {
         statusText: response.statusText,
         url: response.url,
         prompt: finalPrompt,
-        error: errorData.error
+        error: errorData.error,
+        requestBody: JSON.stringify({  // 记录请求体用于调试
+          model: 'deepseek-api/image-gen',
+          prompt: finalPrompt,
+          n: 1,
+          size: "384x384"
+        })
       });
       throw new Error(`Image generation failed: ${response.status}`);
     }
