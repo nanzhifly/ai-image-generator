@@ -98,25 +98,13 @@ async function validateApiKey(apiKey) {
 // 4. API 生成路由
 app.post('/api/generate', async (req, res) => {
   try {
-    // 验证 API 密钥
-    const apiKey = process.env.DEEPSEEK_API_KEY;
-    if (!apiKey) {
-      throw new Error('API key not found');
-    }
-    
-    // 验证 API 密钥有效性
-    const isValidKey = await validateApiKey(apiKey);
-    if (!isValidKey) {
-      throw new Error('Invalid API key');
-    }
-
     const { prompt, style } = req.body;
     
     // 根据风格添加提示词
     const stylePrompts = {
-      photo: "realistic photo style, high quality, 4K resolution",
-      art: "artistic painting style, creative composition",
-      cartoon: "cartoon style, cute design, vibrant colors"
+      photo: "realistic photo, 4K, detailed",
+      art: "artistic painting, creative",
+      cartoon: "cartoon style, cute"
     };
     
     // 合并提示词
@@ -124,7 +112,7 @@ app.post('/api/generate', async (req, res) => {
     
     console.log('生成请求:', {
       prompt: finalPrompt,
-      style: 'none'  // 记录用于调试
+      model: 'deepseek-api/janus-7b'  // 记录使用的模型
     });
     
     // 调用 DeepSeek API
@@ -132,28 +120,25 @@ app.post('/api/generate', async (req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'User-Agent': 'DeepSeek-Image-Generator',
-        'Origin': 'https://api.siliconflow.cn',
-        'Referer': 'https://api.siliconflow.cn/'
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
       },
       body: JSON.stringify({
+        model: 'deepseek-api/janus-7b',  // 添加必要的模型参数
         prompt: finalPrompt,
         n: 1,
         size: "384x384",
-        quality: "standard",  // 使用标准质量
-        num_inference_steps: 30,  // 添加推理步数
-        guidance_scale: 7.5  // 添加引导比例
+        response_format: 'url'  // 指定返回格式
       })
     });
 
     if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
       console.error('API 错误:', {
         status: response.status,
         statusText: response.statusText,
         url: response.url,
         prompt: finalPrompt,
-        keyValid: isValidKey
+        error: errorData.error
       });
       throw new Error(`Image generation failed: ${response.status}`);
     }
@@ -161,7 +146,7 @@ app.post('/api/generate', async (req, res) => {
     const data = await response.json();
     console.log('API 响应:', data);
     res.json({
-      url: data.images?.[0]?.url || data.images?.[0] || data.url,
+      url: data.data?.[0]?.url || data.url,  // 适配新的返回格式
       prompt: finalPrompt
     });
   } catch (error) {
