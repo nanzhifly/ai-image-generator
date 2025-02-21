@@ -36,28 +36,32 @@ app.get('/health', (req, res) => {
 app.get('/proxy-image', async (req, res) => {
     try {
         const imageUrl = decodeURIComponent(req.query.url);
+        console.log('代理请求URL:', imageUrl);
+        
         const ossHeaders = {
             'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
             'Origin': 'https://api.siliconflow.cn',
             'Referer': 'https://api.siliconflow.cn/',
-            'User-Agent': 'Mozilla/5.0'
+            'User-Agent': 'DeepSeek-Image-Generator'
         };
-        
-        console.log('代理请求:', imageUrl);
         
         const response = await fetch(imageUrl, {
             headers: ossHeaders,
-            timeout: 60000
+            timeout: 30000
         });
         
         if (!response.ok) {
-            console.error('图片加载失败:', response.status, response.statusText);
+            console.error('图片加载失败:', {
+                status: response.status,
+                statusText: response.statusText,
+                headers: Object.fromEntries(response.headers)
+            });
             throw new Error(`图片加载失败: ${response.status}`);
         }
         
-        // 设置缓存头
-        res.set('Cache-Control', 'public, max-age=31536000');
         res.set('Content-Type', response.headers.get('content-type'));
+        res.set('Cache-Control', 'no-cache');
+        
         response.body.pipe(res);
     } catch (error) {
         console.error('代理错误:', error);
@@ -73,24 +77,41 @@ app.post('/api/generate', async (req, res) => {
   try {
     const { prompt, style } = req.body;
     
+    console.log('生成请求:', { prompt, style });
+    
     // 调用 DeepSeek API
-    const response = await fetch('https://api.deepseek.com/v1/images/generations', {
+    const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'User-Agent': 'DeepSeek-Image-Generator',
+        'Origin': 'https://api.siliconflow.cn',
+        'Referer': 'https://api.siliconflow.cn/'
       },
       body: JSON.stringify({
         prompt,
         style,
-        n: 1
+        n: 1,
+        size: "384x384",
+        quality: "fast"
       })
     });
 
+    if (!response.ok) {
+      console.error('API 错误:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: response.url
+      });
+      throw new Error(`图片生成失败: ${response.status}`);
+    }
+
     const data = await response.json();
+    console.log('API 响应:', data);
     res.json(data);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('生成错误:', error);
     res.status(500).json({ error: 'Failed to generate image' });
   }
 });
