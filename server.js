@@ -77,7 +77,20 @@ app.post('/api/generate', async (req, res) => {
   try {
     const { prompt, style } = req.body;
     
-    console.log('生成请求:', { prompt, style });
+    // 根据风格添加提示词
+    const stylePrompts = {
+      photo: "realistic photo style, high quality, 4K resolution",
+      art: "artistic painting style, creative composition",
+      cartoon: "cartoon style, cute design, vibrant colors"
+    };
+    
+    // 合并提示词
+    const finalPrompt = `${prompt}, ${stylePrompts[style] || ''}`.trim();
+    
+    console.log('生成请求:', {
+      prompt: finalPrompt,
+      style: 'none'  // 记录用于调试
+    });
     
     // 调用 DeepSeek API
     const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
@@ -90,11 +103,12 @@ app.post('/api/generate', async (req, res) => {
         'Referer': 'https://api.siliconflow.cn/'
       },
       body: JSON.stringify({
-        prompt,
-        style,
+        prompt: finalPrompt,
         n: 1,
         size: "384x384",
-        quality: "fast"
+        quality: "standard",  // 使用标准质量
+        num_inference_steps: 30,  // 添加推理步数
+        guidance_scale: 7.5  // 添加引导比例
       })
     });
 
@@ -102,17 +116,25 @@ app.post('/api/generate', async (req, res) => {
       console.error('API 错误:', {
         status: response.status,
         statusText: response.statusText,
-        url: response.url
+        url: response.url,
+        prompt: finalPrompt  // 记录完整提示词
       });
       throw new Error(`图片生成失败: ${response.status}`);
     }
 
     const data = await response.json();
     console.log('API 响应:', data);
-    res.json(data);
+    res.json({
+      url: data.images?.[0]?.url || data.images?.[0] || data.url,
+      prompt: finalPrompt
+    });
   } catch (error) {
     console.error('生成错误:', error);
-    res.status(500).json({ error: 'Failed to generate image' });
+    res.status(500).json({ 
+      error: '图片生成失败',
+      details: error.message,
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
