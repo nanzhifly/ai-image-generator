@@ -338,59 +338,117 @@
           charCount.textContent = `${count}/${CONFIG.MAX_LENGTH}`;
         });
 
-        // 生成图片
-        generateBtn.onclick = async function() {
-          // 显示加载状态
-          generateBtn.disabled = true;
-          placeholder.style.display = 'block';
-          progressContainer.style.display = 'block';
-          resultImage.innerHTML = '';
-          downloadBtn.style.display = 'none';
-
+        // 图片生成函数
+        async function generateImage() {
+          const promptInput = document.getElementById('prompt-input');
+          const styleSelect = document.getElementById('style-select');
+          const generateBtn = document.getElementById('generate-btn');
+          const placeholder = document.querySelector('.placeholder');
+          const resultImage = document.querySelector('.result-image');
+          const maxRetries = 2;
+          const timeout = 30000;
+          
           try {
-            const response = await fetch('/api/generate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                prompt: promptInput.value,
-                style: styleSelect.value
-              })
-            });
-            const data = await response.json();
+            generateBtn.disabled = true;
+            // 显示加载状态
+            placeholder.style.display = 'block';
+            placeholder.innerHTML = `
+              <div class="loading-status">
+                <div class="spinner"></div>
+                <p>Generating your image...</p>
+              </div>
+            `;
+            resultImage.innerHTML = '';
             
-            if (data.error) {
-              throw new Error(data.error);
+            // 显示进度条
+            progressContainer.style.display = 'block';
+            const progressBar = progressContainer.querySelector('.progress-bar');
+            progressBar.style.width = '0%';
+            
+            // 添加超时控制
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeout);
+            
+            // 带重试的请求函数
+            async function fetchWithRetry(retries = 0) {
+              try {
+                const response = await fetch('/api/generate', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    prompt: promptInput.value,
+                    style: styleSelect.value
+                  }),
+                  signal: controller.signal
+                });
+                
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(errorData.error || `Server error: ${response.status}`);
+                }
+                
+                return await response.json();
+              } catch (error) {
+                if (retries < maxRetries) {
+                  console.log(`Retrying... (${retries + 1}/${maxRetries})`);
+                  return await fetchWithRetry(retries + 1);
+                }
+                throw error;
+              }
             }
-
+            
+            const data = await fetchWithRetry();
+            clearTimeout(timeoutId);
+            
+            // 隐藏进度条
+            progressContainer.style.display = 'none';
+            
             // 显示生成的图片
             const img = document.createElement('img');
-            img.src = `/proxy-image?url=${encodeURIComponent(data.url)}`;
+            img.src = data.url;
             img.alt = promptInput.value;
+            img.onload = function() {
+              placeholder.style.display = 'none';
+              resultImage.style.display = 'block';
+            };
             img.onerror = function() {
-              console.error('图片加载失败');
-              placeholder.textContent = '图片加载失败，请重试';
-              placeholder.style.color = '#d32f2f';
+              console.error('Image load failed');
+              showError('Image Load Error', 'Failed to load the generated image. Please try again.');
             };
             resultImage.appendChild(img);
-            placeholder.style.display = 'none';
+            
+            // 显示下载按钮
             downloadBtn.style.display = 'block';
             
-            // 设置下载按钮
-            downloadBtn.onclick = () => {
-              const link = document.createElement('a');
-              link.href = data.url;
-              link.download = 'generated-image.png';
-              link.click();
-            };
           } catch (error) {
-            placeholder.textContent = `Error: ${error.message}`;
-            placeholder.style.color = '#d32f2f';
+            console.error('Generation error:', error);
+            let title = 'Generation Error';
+            let message = 'Failed to generate image. ';
+            if (error.name === 'AbortError') {
+              message += 'Request timed out. Please try again.';
+            } else {
+              message += error.message;
+            }
+            showError(title, message);
           } finally {
             generateBtn.disabled = false;
             progressContainer.style.display = 'none';
           }
-        };
+        }
+        
+        // 绑定生成按钮事件
+        generateBtn.addEventListener('click', generateImage);
       };
+
+      // 显示错误信息
+      function showError(title, message) {
+        placeholder.innerHTML = `
+          <div class="error-container">
+            <h3>${title}</h3>
+            <p>${message}</p>
+          </div>
+        `;
+      }
     </script>
 </head>
 <body>
