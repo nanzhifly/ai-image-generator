@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import dotenv from 'dotenv';
+import { API_CONFIG } from '../src/config.js';
 
 // 加载环境变量
 dotenv.config();
@@ -18,7 +19,7 @@ function checkEnvironment() {
 
 // API 测试配置
 const TEST_CONFIG = {
-  API_URL: 'https://api.siliconflow.cn/v1',
+  API_URL: API_CONFIG.BASE_URL,
   MODELS: {
     IMAGE_GEN: 'deepseek-api/image-gen'
   },
@@ -57,8 +58,8 @@ async function testImageGeneration() {
       const response = await fetch(`${TEST_CONFIG.API_URL}/images/generations`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+          'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+          ...API_CONFIG.REQUEST.HEADERS
         },
         body: JSON.stringify({
           model: TEST_CONFIG.MODELS.IMAGE_GEN,

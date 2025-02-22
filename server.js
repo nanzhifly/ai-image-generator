@@ -41,10 +41,7 @@ app.get('/proxy-image', async (req, res) => {
         console.log('代理请求URL:', imageUrl);
         
         const ossHeaders = {
-            'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
-            'Origin': 'https://api.siliconflow.cn',
-            'Referer': 'https://api.siliconflow.cn/',
-            'User-Agent': 'DeepSeek-Image-Generator'
+            ...API_CONFIG.REQUEST.HEADERS
         };
         
         const response = await fetch(imageUrl, {
@@ -105,11 +102,11 @@ checkEnvironment();
 async function validateApiKey(apiKey) {
   try {
     // 测试 API 密钥
-    const response = await fetch('https://api.siliconflow.cn/v1/models', {
+    const response = await fetch(`${API_CONFIG.BASE_URL}/${API_CONFIG.ENDPOINTS.MODELS}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
+        ...API_CONFIG.REQUEST.HEADERS
       }
     });
     
