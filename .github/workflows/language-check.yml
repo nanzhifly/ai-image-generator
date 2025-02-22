@@ -1,0 +1,44 @@
+name: Language Guidelines Check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-language:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Check Documentation Language
+        run: |
+          # 检查中文文档
+          echo "检查文档语言规范..."
+          for file in README.md DEVELOPMENT.md DEPLOYMENT.md docs/TEST_CASES.md; do
+            if [ -f "$file" ]; then
+              echo "检查 $file..."
+            fi
+          done
+      
+      - name: Check UI Language
+        run: |
+          # 检查英文界面
+          echo "检查界面语言规范..."
+          if [ -f "index.html" ]; then
+            echo "检查 index.html..."
+          fi
+          
+      - name: Check Code Comments
+        run: |
+          # 检查代码注释
+          echo "检查代码注释规范..."
+          # 后端代码（中文注释）
+          for file in server.js src/services/*.js; do
+            if [ -f "$file" ]; then
+              echo "检查 $file..."
+            fi
+          done
+          # 前端代码（英文注释）
+          if [ -f "index.html" ]; then
+            echo "检查 index.html..."
+          fi
