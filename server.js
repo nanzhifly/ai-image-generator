@@ -130,6 +130,11 @@ app.post('/api/generate', async (req, res) => {
     
     const { prompt, style } = req.body;
     
+    // 验证输入
+    if (!prompt || prompt.length < 50 || prompt.length > 1000) {
+      return res.status(400).json({ error: '提示词长度必须在 50-1000 字之间' });
+    }
+    
     // 根据风格添加提示词
     const stylePrompts = {
       photo: "realistic photo, 4K, detailed",
@@ -145,82 +150,39 @@ app.post('/api/generate', async (req, res) => {
       model: 'deepseek-api/image-gen'  // 记录使用的模型
     });
     
-    // 通过代理调用 API
-    const apiUrl = `${API_CONFIG.BASE_URL}/${API_CONFIG.ENDPOINTS.GENERATE}`;
-    const response = await proxyRequest(apiUrl, {
+    // 调用 DeepSeek API
+    const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
       headers: {
-        ...API_CONFIG.REQUEST.HEADERS,
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Origin': 'https://api.siliconflow.cn',
+        'Referer': 'https://api.siliconflow.cn/',
+        'User-Agent': 'DeepSeek-Image-Generator'
       },
       body: JSON.stringify({
-        model: 'deepseek-api/image-gen',
-        prompt: finalPrompt,
+        model: 'deepseek-ai/Janus-Pro-7B',
+        prompt,
         n: 1,
-        size: "384x384"
+        size: '384x384',
+        quality: 'fast',
+        num_inference_steps: 35,
+        guidance_scale: 7.5
       })
     });
 
     if (!response.ok) {
-      // 处理代理错误
-      const errorType = response.status === 500 ? 'SERVER' :
-                       response.status === 401 ? 'AUTH' :
-                       'NETWORK';
-      
-      // 先获取原始响应文本
-      const responseText = await response.text();
-      let errorData = {};
-      
-      try {
-        errorData = JSON.parse(responseText);
-      } catch (e) {
-        errorData = { 
-          error: PROXY_CONFIG.ERROR_MESSAGES[errorType],
-          details: responseText
-        };
-      }
-      
-      console.error('API 错误:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: response.url,
-        prompt: finalPrompt,
-        error: errorData.error,
-        details: errorData.details,
-        requestBody: JSON.stringify({
-          model: 'deepseek-api/image-gen',
-          prompt: finalPrompt,
-          n: 1,
-          size: "384x384"
-        })
-      });
-      
-      throw new Error(PROXY_CONFIG.ERROR_MESSAGES[errorType]);
+      const error = await response.json();
+      throw new Error(error.message || '图片生成失败');
     }
 
-    // 先获取响应文本
-    const responseText = await response.text();
-    let data;
-    try {
-      // 尝试解析为 JSON
-      data = JSON.parse(responseText);
-    } catch (e) {
-      console.error('JSON 解析错误:', e);
-      throw new Error('Invalid JSON response from server');
-    }
+    const data = await response.json();
+    res.json(data);
     
-    console.log('API 响应:', data);
-    res.json({
-      url: data.data?.[0]?.url || data.url,
-      prompt: finalPrompt
-    });
   } catch (error) {
-    console.error('生成错误:', error);
-    res.status(500).json({ 
-      error: 'Failed to generate image',
-      details: error.message,
-      timestamp: new Date().toISOString()
-    });
+    console.error('API Error:', error);
+    res.status(500).json({ error: error.message || '服务器错误' });
   }
 });
 
