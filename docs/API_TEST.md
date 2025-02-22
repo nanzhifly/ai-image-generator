@@ -18,8 +18,9 @@ node scripts/api-test.js
 
 ## 测试用例
 
-1. 健康检查
-- 端点: /health
+1. API 可用性检查
+- 端点: /models
+- 方法: GET
 - 预期: 200 OK
 
 2. 图片生成

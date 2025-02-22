@@ -18,14 +18,19 @@ const TEST_CONFIG = {
   ]
 };
 
-// API 健康检查
-async function testHealth() {
+// API 可用性检查
+async function checkApiAvailability() {
   try {
-    const response = await fetch(`${TEST_CONFIG.API_URL}/health`);
-    console.log('健康检查:', response.status);
+    // 使用 models 接口检查 API 可用性
+    const response = await fetch(`${TEST_CONFIG.API_URL}/models`, {
+      headers: {
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+      }
+    });
+    console.log('API 可用性检查:', response.status);
     return response.ok;
   } catch (error) {
-    console.error('健康检查失败:', error);
+    console.error('API 检查失败:', error);
     return false;
   }
 }
@@ -72,10 +77,10 @@ async function testImageGeneration() {
 async function runTests() {
   console.log('开始 API 测试...\n');
   
-  // 1. 健康检查
-  const isHealthy = await testHealth();
-  if (!isHealthy) {
-    console.error('健康检查失败，停止测试');
+  // 1. API 可用性检查
+  const isAvailable = await checkApiAvailability();
+  if (!isAvailable) {
+    console.error('API 不可用，停止测试');
     return;
   }
   
