@@ -1,7 +1,7 @@
 // API 配置
 export const API_CONFIG = {
   // API 基础配置
-  BASE_URL: 'https://api.deepseek.com/v1',  // 正确的基础域名
+  BASE_URL: 'https://api.siliconflow.cn/v1',  // 使用实际工作的域名
   TIMEOUT: 30000,
   
   // API 端点
@@ -18,8 +18,8 @@ export const API_CONFIG = {
     HEADERS: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
-      'Origin': 'https://api.deepseek.com',
-      'Referer': 'https://api.deepseek.com/',
+      'Origin': 'https://api.siliconflow.cn',
+      'Referer': 'https://api.siliconflow.cn/',
       'User-Agent': 'DeepSeek-Image-Generator'
     }
   },
