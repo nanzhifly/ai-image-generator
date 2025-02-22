@@ -1,15 +1,11 @@
 // 代理配置
 export const PROXY_CONFIG = {
   // 代理基础配置
-  TARGET_API: 'https://api.siliconflow.cn',
-  TIMEOUT: 30000,
+  TARGET_API: API_CONFIG.BASE_URL,  // 使用统一配置
+  TIMEOUT: API_CONFIG.TIMEOUT,
   
   // 请求头转换
-  HEADERS_MAP: {
-    'origin': 'https://api.siliconflow.cn',
-    'referer': 'https://api.siliconflow.cn/',
-    'user-agent': 'DeepSeek-Image-Generator'
-  },
+  HEADERS_MAP: API_CONFIG.REQUEST.HEADERS,  // 使用统一请求头
   
   // 错误处理
   ERROR_MESSAGES: {

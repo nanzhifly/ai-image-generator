@@ -27,7 +27,7 @@
 ### 环境变量配置
 环境变量仅在服务器端使用：
 ```
-DEEPSEEK_API_KEY=your_api_key
+DEEPSEEK_API_KEY=sk-xxxx  # DeepSeek API 密钥
 ```
 
 ### 开发说明
@@ -287,7 +287,7 @@ DeepSeek Image Generator 基于 DeepSeek 强大的 AI 技术构建，
 
 3. 配置环境变量
    ```bash
-   export DEEPSEEK_API_KEY=your_api_key
+   export DEEPSEEK_API_KEY=sk-xxxx
    ```
 
 4. 运行部署脚本
@@ -335,3 +335,20 @@ DeepSeek Image Generator 基于 DeepSeek 强大的 AI 技术构建，
    - UI 渲染
    - 事件处理
    - 用户交互 
+
+## 环境配置
+
+1. API 配置
+   - 基础域名: https://api.deepseek.com/v1
+   - 超时时间: 30s
+   - 重试次数: 2
+
+2. 环境变量
+   ```env
+   DEEPSEEK_API_KEY=sk-xxxx  # DeepSeek API 密钥
+   ```
+
+3. 域名说明
+   - 使用 api.deepseek.com 作为统一域名
+   - 所有请求通过该域名访问
+   - 确保环境变量正确配置 

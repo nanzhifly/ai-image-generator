@@ -1,15 +1,14 @@
 // API 配置
 export const API_CONFIG = {
   // API 基础配置
-  BASE_URL: 'https://api.deepseek.com',  // 更新为正确的域名
-  VERSION: 'v1',
+  BASE_URL: 'https://api.deepseek.com/v1',  // 正确的基础域名
   TIMEOUT: 30000,
   
   // API 端点
   ENDPOINTS: {
-    GENERATE: '/images/generations',
-    MODELS: '/models',
-    HEALTH: '/health'
+    GENERATE: 'images/generations',  // 移除前导斜杠
+    MODELS: 'models',
+    HEALTH: 'health'
   },
   
   // 请求配置
@@ -18,7 +17,10 @@ export const API_CONFIG = {
     RETRY_DELAY: 1000,
     HEADERS: {
       'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Accept': 'application/json',
+      'Origin': 'https://api.deepseek.com',
+      'Referer': 'https://api.deepseek.com/',
+      'User-Agent': 'DeepSeek-Image-Generator'
     }
   },
   

@@ -149,8 +149,8 @@ app.post('/api/generate', async (req, res) => {
     });
     
     // 通过代理调用 API
-    const apiPath = `${API_CONFIG.VERSION}${API_CONFIG.ENDPOINTS.GENERATE}`;
-    const response = await proxyRequest(`${PROXY_CONFIG.TARGET_API}/${apiPath}`, {
+    const apiUrl = `${API_CONFIG.BASE_URL}/${API_CONFIG.ENDPOINTS.GENERATE}`;
+    const response = await proxyRequest(apiUrl, {
       method: 'POST',
       headers: {
         ...API_CONFIG.REQUEST.HEADERS,
