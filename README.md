@@ -69,3 +69,5 @@ MIT 开源协议
 ## 关于 DeepSeek
 DeepSeek Image Generator 是一个基于 DeepSeek AI 技术的图片生成工具，
 提供直观的界面和高质量的图片生成能力。
+## 贡献指南
+请查看 [语言规范](./LANGUAGE_GUIDELINES.md) 了解更多信息。
