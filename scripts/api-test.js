@@ -4,6 +4,18 @@ import dotenv from 'dotenv';
 // 加载环境变量
 dotenv.config();
 
+// 检查环境变量
+function checkEnvironment() {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error('DEEPSEEK_API_KEY 环境变量未设置');
+  }
+  if (!apiKey.startsWith('sk-')) {
+    throw new Error('DEEPSEEK_API_KEY 格式错误，应该以 sk- 开头');
+  }
+  console.log('API Key:', apiKey.substring(0, 5) + '*'.repeat(10));
+}
+
 // API 测试配置
 const TEST_CONFIG = {
   API_URL: 'https://api.siliconflow.cn/v1',
@@ -76,6 +88,14 @@ async function testImageGeneration() {
 // 运行测试
 async function runTests() {
   console.log('开始 API 测试...\n');
+  
+  // 0. 环境检查
+  try {
+    checkEnvironment();
+  } catch (error) {
+    console.error('环境检查失败:', error.message);
+    return;
+  }
   
   // 1. API 可用性检查
   const isAvailable = await checkApiAvailability();
