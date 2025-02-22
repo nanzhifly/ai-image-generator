@@ -14,16 +14,26 @@ function checkEnvironment() {
   if (!apiKey.startsWith('sk-')) {
     throw new Error('DEEPSEEK_API_KEY 格式错误，应该以 sk- 开头');
   }
-  console.log('API Key:', apiKey.substring(0, 5) + '*'.repeat(10));
+  
+  // 添加更多调试信息
+  console.log('环境检查:');
+  console.log('- API Key 格式:', apiKey.startsWith('sk-') ? '正确' : '错误');
+  console.log('- API Key 长度:', apiKey.length);
+  console.log('- API Key 前缀:', apiKey.substring(0, 8) + '*'.repeat(10));
+  
+  // 检查配置
+  console.log('\n配置检查:');
+  console.log('- API URL:', API_CONFIG.BASE_URL);
+  console.log('- Headers:', JSON.stringify(API_CONFIG.REQUEST.HEADERS, null, 2));
 }
 
 // API 测试配置
 const TEST_CONFIG = {
   API_URL: API_CONFIG.BASE_URL,
   MODELS: {
-    IMAGE_GEN: 'deepseek-api/image-gen'
+    IMAGE_GEN: 'deepseek-ai/Janus-Pro-7B'
   },
-  SIZES: ['384x384', '512x512', '768x768'],
+  SIZES: ['384x384'],
   TEST_PROMPTS: [
     'a dog',
     'sunset over mountains',
@@ -72,7 +82,10 @@ async function testImageGeneration() {
           model: TEST_CONFIG.MODELS.IMAGE_GEN,
           prompt,
           n: 1,
-          size: TEST_CONFIG.SIZES[0]
+          size: TEST_CONFIG.SIZES[0],
+          quality: "fast",
+          num_inference_steps: 35,
+          guidance_scale: 7.5
         })
       });
 
