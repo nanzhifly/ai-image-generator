@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,23 +21,23 @@
     <meta property="twitter:title" content="DeepSeek Image Generator">
     <meta property="twitter:description" content="Transform your ideas into beautiful images. Support multiple artistic styles, generate high-quality AI images with one click.">
     <meta property="twitter:image" content="https://your-domain.com/og-image.jpg">
-    <title>AI 图像生成器</title>
+    <title>DeepSeek Image Generator</title>
     <link rel="stylesheet" href="src/styles/main.css">
     <script>
-      // 全局配置
+      // Global configuration
       const CONFIG = {
         API_URL: 'https://api.siliconflow.cn/v1/images/generations',
         MAX_LENGTH: 1000,
         STYLES: {
-          photo: { name: 'Realistic Photo' },
-          art: { name: 'Artistic Painting' },
+          photo: { name: 'Photo Style' },
+          art: { name: 'Art Style' },
           cartoon: { name: 'Cartoon Style' }
         }
       };
 
-      // 页面加载完成后执行
+      // Initialize after page load
       window.onload = function() {
-        // 获取 DOM 元素
+        // Get DOM elements
         const promptInput = document.getElementById('prompt-input');
         const styleSelect = document.getElementById('style-select');
         const generateBtn = document.getElementById('generate-btn');
@@ -48,20 +48,20 @@
         const resultImage = imageContainer.querySelector('.result-image');
         const charCount = document.querySelector('.char-count');
 
-        // 更新字符计数
+        // Update character count
         promptInput.addEventListener('input', function() {
           const count = this.value.length;
           charCount.textContent = `${count}/${CONFIG.MAX_LENGTH}`;
         });
 
-        // 图片生成函数
+        // Generate image function
         async function generateImage() {
           const maxRetries = 2;
           const timeout = 30000;
           
           try {
             generateBtn.disabled = true;
-            // 显示加载状态
+            // Show loading state
             placeholder.style.display = 'block';
             placeholder.innerHTML = `
               <div class="loading-status">
@@ -71,16 +71,16 @@
             `;
             resultImage.innerHTML = '';
             
-            // 显示进度条
+            // Show progress bar
             progressContainer.style.display = 'block';
             const progressBar = progressContainer.querySelector('.progress-bar');
             progressBar.style.width = '0%';
             
-            // 添加超时控制
+            // Add timeout control
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), timeout);
             
-            // 带重试的请求函数
+            // Fetch with retry function
             async function fetchWithRetry(retries = 0) {
               try {
                 const response = await fetch('/api/generate', {
@@ -111,10 +111,10 @@
             const data = await fetchWithRetry();
             clearTimeout(timeoutId);
             
-            // 隐藏进度条
+            // Hide progress bar
             progressContainer.style.display = 'none';
             
-            // 显示生成的图片
+            // Show generated image
             const img = document.createElement('img');
             img.src = data.url;
             img.alt = promptInput.value;
@@ -128,7 +128,7 @@
             };
             resultImage.appendChild(img);
             
-            // 显示下载按钮
+            // Show download button
             downloadBtn.style.display = 'block';
             
           } catch (error) {
@@ -147,10 +147,10 @@
           }
         }
         
-        // 绑定生成按钮事件
+        // Bind generate button event
         generateBtn.addEventListener('click', generateImage);
         
-        // 显示错误信息
+        // Show error message
         function showError(title, message) {
           placeholder.innerHTML = `
             <div class="error-container">
@@ -164,24 +164,24 @@
 </head>
 <body>
     <main>
-        <!-- 输入区域 -->
+        <!-- Input Section -->
         <section class="input-section">
             <textarea class="prompt-input" 
-                      placeholder="请输入图片描述（50-1000字）"></textarea>
+                      placeholder="Enter your image description (50-1000 characters)"></textarea>
             <div class="style-selector">
-                <button class="style-btn" data-style="photo">照片风格</button>
-                <button class="style-btn" data-style="cartoon">卡通风格</button>
-                <button class="style-btn" data-style="art">艺术风格</button>
+                <button class="style-btn" data-style="photo">Photo Style</button>
+                <button class="style-btn" data-style="cartoon">Cartoon Style</button>
+                <button class="style-btn" data-style="art">Art Style</button>
             </div>
         </section>
 
-        <!-- 控制区域 -->
+        <!-- Control Section -->
         <section class="control-section">
-            <button class="generate-btn">生成图片</button>
-            <div class="loading-indicator" hidden>生成中...</div>
+            <button class="generate-btn">Generate Image</button>
+            <div class="loading-indicator" hidden>Generating...</div>
         </section>
 
-        <!-- 输出区域 -->
+        <!-- Output Section -->
         <section class="output-section">
             <div class="image-preview" hidden></div>
             <div class="error-message" hidden></div>
@@ -198,7 +198,7 @@
       "@type": "WebApplication",
       "name": "DeepSeek Image Generator",
       "description": "AI-powered image generation tool built with DeepSeek API. Create high-quality images in various artistic styles.",
-      "applicationCategory": "图片生成工具",
+      "applicationCategory": "Image Generation Tool",
       "operatingSystem": "All",
       "offers": {
         "@type": "Offer",

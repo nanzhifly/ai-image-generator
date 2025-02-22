@@ -1,77 +1,96 @@
+import dotenv from 'dotenv';
+import { API_CONFIG, ENV_CONFIG, LOG_CONFIG } from './src/config.js';
+import { PROXY_CONFIG, proxyRequest } from './src/proxy.js';
+
+const result = dotenv.config();
+
+if (result.error) {
+  console.error('加载环境变量失败:', result.error);
+  process.exit(1);
+}
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import fetch from 'node-fetch';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { API_CONFIG, ENV_CONFIG, LOG_CONFIG } from './src/config.js';
-import { PROXY_CONFIG, proxyRequest } from './src/proxy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const app = express();
-const port = process.env.PORT || 8080;
+// 初始化前检查环境
+checkEnvironment();
 
-// 中间件
+const app = express();
+const port = process.env.PORT || 3000;
+
+// 配置中间件
 app.use(cors());
 app.use(express.json());
 
-// 设置正确的 MIME 类型
-app.use((req, res, next) => {
-    if (req.url.endsWith('.js')) {
-        res.type('application/javascript');
+// API 健康检查路由
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    version: process.env.npm_package_version || '1.0.0',
+    services: {
+      nginx: 'running',
+      api: 'running'
     }
-    next();
+  });
 });
 
-// 1. 静态文件路由
+// 配置 MIME 类型
+app.use((req, res, next) => {
+  if (req.url.endsWith('.js')) {
+    res.type('application/javascript');
+  }
+  next();
+});
+
+// 静态资源路由
 app.use(express.static(path.join(__dirname, 'src')));
 app.use(express.static(path.join(__dirname)));
 
-// 2. API 健康检查
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
-
-// 3. 图片代理路由
+// 图片代理路由
 app.get('/proxy-image', async (req, res) => {
-    try {
-        const imageUrl = decodeURIComponent(req.query.url);
-        console.log('代理请求URL:', imageUrl);
-        
-        const ossHeaders = {
-            ...API_CONFIG.REQUEST.HEADERS
-        };
-        
-        const response = await fetch(imageUrl, {
-            headers: ossHeaders,
-            timeout: 30000
-        });
-        
-        if (!response.ok) {
-            console.error('图片加载失败:', {
-                status: response.status,
-                statusText: response.statusText,
-                headers: Object.fromEntries(response.headers)
-            });
-            throw new Error(`图片加载失败: ${response.status}`);
-        }
-        
-        res.set('Content-Type', response.headers.get('content-type'));
-        res.set('Cache-Control', 'no-cache');
-        
-        response.body.pipe(res);
-    } catch (error) {
-        console.error('代理错误:', error);
-        res.status(500).json({ 
-            error: '图片加载失败',
-            details: error.message 
-        });
+  try {
+    const imageUrl = decodeURIComponent(req.query.url);
+    console.log('代理图片请求:', imageUrl);
+    
+    const ossHeaders = {
+      ...API_CONFIG.REQUEST.HEADERS
+    };
+    
+    const response = await fetch(imageUrl, {
+      headers: ossHeaders,
+      timeout: 30000
+    });
+    
+    if (!response.ok) {
+      console.error('图片加载失败:', {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers)
+      });
+      throw new Error(`Failed to load image: ${response.status}`);
     }
+    
+    res.set('Content-Type', response.headers.get('content-type'));
+    res.set('Cache-Control', 'no-cache');
+    
+    response.body.pipe(res);
+  } catch (error) {
+    console.error('图片代理出错:', error);
+    res.status(500).json({ 
+      error: 'Failed to load image',
+      details: error.message 
+    });
+  }
 });
 
-// 环境变量检查
 function checkEnvironment() {
   const requiredEnvVars = ENV_CONFIG.REQUIRED_VARS;
   const missingVars = [];
@@ -121,18 +140,18 @@ async function validateApiKey(apiKey) {
   }
 }
 
-// 4. API 生成路由
+// API 生成路由
 app.post('/api/generate', async (req, res) => {
   try {
     // 记录 API 密钥前6位用于调试
     const apiKey = process.env.DEEPSEEK_API_KEY;
-    console.log('Using API key:', apiKey.substring(0, 6) + '...');
+    console.log('使用 API 密钥:', apiKey.substring(0, 6) + '...');
     
     const { prompt, style } = req.body;
     
     // 验证输入
     if (!prompt || prompt.length < 50 || prompt.length > 1000) {
-      return res.status(400).json({ error: '提示词长度必须在 50-1000 字之间' });
+      return res.status(400).json({ error: 'Prompt length must be between 50-1000 characters' });
     }
     
     // 根据风格添加提示词
@@ -145,7 +164,7 @@ app.post('/api/generate', async (req, res) => {
     // 合并提示词
     const finalPrompt = `${prompt}, ${stylePrompts[style] || ''}`.trim();
     
-    console.log('生成请求:', {
+    console.log('开始生成图片:', {
       prompt: finalPrompt,
       model: 'deepseek-api/image-gen'  // 记录使用的模型
     });
@@ -174,26 +193,26 @@ app.post('/api/generate', async (req, res) => {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || '图片生成失败');
+      throw new Error(error.message || 'Failed to generate image');
     }
 
     const data = await response.json();
     res.json(data);
     
   } catch (error) {
-    console.error('API Error:', error);
-    res.status(500).json({ error: error.message || '服务器错误' });
+    console.error('API 调用出错:', error);
+    res.status(500).json({ error: error.message || 'Server error' });
   }
 });
 
-// 5. 通配符路由放最后
+// 默认路由（放在最后）
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // 启动服务器
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`服务器运行于 http://localhost:${port}`);
 });
 
 // 导出 app

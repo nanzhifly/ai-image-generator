@@ -1,3 +1,5 @@
+import { API_CONFIG } from './config.js';
+
 // 代理配置
 export const PROXY_CONFIG = {
   // 代理基础配置
