@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,293 +21,8 @@
     <meta property="twitter:title" content="DeepSeek Image Generator">
     <meta property="twitter:description" content="Transform your ideas into beautiful images. Support multiple artistic styles, generate high-quality AI images with one click.">
     <meta property="twitter:image" content="https://your-domain.com/og-image.jpg">
-    <title>DeepSeek Image Generator</title>
-    <style>
-        :root {
-            --primary: #0066CC;
-            --text: #333333;
-            --border: #E5E5E7;
-            --background: #FFFFFF;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--background);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-            color: var(--text);
-        }
-
-        .input-section {
-            margin-bottom: 40px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            font-size: 16px;
-            resize: vertical;
-            margin-bottom: 16px;
-            background: #FAFAFA;
-            transition: all 0.3s ease;
-        }
-
-        textarea:focus {
-            background: white;
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
-        }
-
-        .style-select {
-            width: 200px;
-            margin: 0 auto 20px;
-            padding: 10px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            display: block;
-            cursor: pointer;
-            transition: border-color 0.3s ease;
-        }
-
-        .style-select:hover {
-            border-color: var(--primary);
-        }
-
-        .primary-btn {
-            display: block;
-            width: 200px;
-            padding: 12px 24px;
-            margin: 0 auto;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 24px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .primary-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
-        }
-
-        .primary-btn:active {
-            transform: translateY(0);
-        }
-
-        .image-container {
-            margin: 40px 0;
-            text-align: center;
-            background: #F5F5F7;
-            border-radius: 12px;
-            padding: 100px 20px;
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            border: 1px solid var(--border);
-        }
-
-        .image-container:empty {
-            background: linear-gradient(to bottom, #F5F5F7, #FAFAFA);
-        }
-
-        .placeholder {
-            color: #666666;
-            font-size: 14px;
-            opacity: 0.8;
-            user-select: none;
-        }
-
-        .image-container img {
-            max-width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            display: block;
-            margin: 0 auto;
-        }
-
-        .error-message {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ff3b30;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from { transform: translate(-50%, 100%); opacity: 0; }
-            to { transform: translate(-50%, 0); opacity: 1; }
-        }
-
-        .loading {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-            opacity: 0.8;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .char-count {
-            text-align: right;
-            color: #666;
-            font-size: 12px;
-            margin: -12px 0 12px;
-            opacity: 0.8;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 20px auto;
-            }
-
-            .image-container {
-                padding: 60px 16px;
-                min-height: 200px;
-            }
-
-            .primary-btn {
-                width: 100%;
-            }
-
-            .style-select {
-                width: 100%;
-            }
-
-            .error-container {
-                margin: 10px;
-                font-size: 14px;
-            }
-            
-            textarea {
-                min-height: 100px;
-                font-size: 14px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-        }
-
-        .download-btn {
-            background: #34C759;  /* 使用绿色表示下载 */
-        }
-
-        .download-btn:hover {
-            background: #30B753;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.2);
-        }
-
-        .breadcrumb {
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-        
-        .breadcrumb ol {
-            list-style: none;
-            padding: 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .breadcrumb li {
-            display: flex;
-            align-items: center;
-        }
-        
-        .breadcrumb li:not(:last-child)::after {
-            content: "›";
-            margin: 0 8px;
-            color: #666;
-        }
-        
-        .breadcrumb a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .breadcrumb a:hover {
-            text-decoration: underline;
-        }
-        
-        .breadcrumb [aria-current="page"] {
-            color: #666;
-        }
-
-        .progress-container {
-            width: 100%;
-            height: 4px;
-            background: #f0f0f0;
-            border-radius: 2px;
-            margin: 10px 0;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 2px;
-            transition: width 0.3s ease;
-        }
-        
-        .error-container {
-            padding: 20px;
-            background: #fff3f3;
-            border: 1px solid #ffcdd2;
-            border-radius: 8px;
-            color: #d32f2f;
-            margin: 10px 0;
-        }
-        
-        .error-container h3 {
-            margin: 0 0 10px;
-            font-size: 16px;
-        }
-        
-        .error-container p {
-            margin: 0;
-            font-size: 14px;
-        }
-    </style>
+    <title>AI 图像生成器</title>
+    <link rel="stylesheet" href="src/styles/main.css">
     <script>
       // 全局配置
       const CONFIG = {
@@ -448,41 +163,29 @@
     </script>
 </head>
 <body>
-    <main class="container">
-        <h1>DeepSeek Image Generator</h1>
-        
-        <div class="input-container">
-            <textarea id="prompt-input" placeholder="Enter your image description..." maxlength="1000"></textarea>
-            <span class="char-count">0/1000</span>
-            
-            <select id="style-select" class="style-select">
-                <option value="photo">Realistic Photo</option>
-                <option value="art">Artistic Painting</option>
-                <option value="cartoon">Cartoon Style</option>
-            </select>
-            
-            <button id="generate-btn" class="primary-btn">Generate Image</button>
-        </div>
-        
-        <div id="image-container" class="image-container">
-            <!-- 添加占位符容器 -->
-            <div class="placeholder">
-                <div class="loading-status">
-                    <div class="spinner"></div>
-                    <p>Ready to generate...</p>
-                </div>
+    <main>
+        <!-- 输入区域 -->
+        <section class="input-section">
+            <textarea class="prompt-input" 
+                      placeholder="请输入图片描述（50-1000字）"></textarea>
+            <div class="style-selector">
+                <button class="style-btn" data-style="photo">照片风格</button>
+                <button class="style-btn" data-style="cartoon">卡通风格</button>
+                <button class="style-btn" data-style="art">艺术风格</button>
             </div>
-            
-            <!-- 添加进度条容器 -->
-            <div class="progress-container" style="display: none;">
-                <div class="progress-bar"></div>
-            </div>
-            
-            <!-- 添加结果图片容器 -->
-            <div class="result-image" style="display: none;"></div>
-        </div>
-        
-        <button id="download-btn" class="secondary-btn" style="display: none;">Download Image</button>
+        </section>
+
+        <!-- 控制区域 -->
+        <section class="control-section">
+            <button class="generate-btn">生成图片</button>
+            <div class="loading-indicator" hidden>生成中...</div>
+        </section>
+
+        <!-- 输出区域 -->
+        <section class="output-section">
+            <div class="image-preview" hidden></div>
+            <div class="error-message" hidden></div>
+        </section>
     </main>
 
     <footer class="footer">
