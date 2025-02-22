@@ -2,6 +2,11 @@
 
 基于 DeepSeek API 的图片生成工具，当前为 MVP 阶段。
 
+## 开发规范
+- [语言规范](./LANGUAGE_GUIDELINES.md)
+- [开发指南](./DEVELOPMENT.md)
+- [测试用例](./docs/TEST_CASES.md)
+
 ## 项目状态
 - 版本：v0.1.0（2024-02-22）
 - 状态：MVP 开发中 - 核心功能已验证
