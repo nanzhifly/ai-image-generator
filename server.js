@@ -5,6 +5,7 @@ import fetch from 'node-fetch';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import { API_CONFIG, ENV_CONFIG, LOG_CONFIG } from './src/config.js';
+import { PROXY_CONFIG, proxyRequest } from './src/proxy.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -147,9 +148,9 @@ app.post('/api/generate', async (req, res) => {
       model: 'deepseek-api/image-gen'  // 记录使用的模型
     });
     
-    // 调用 DeepSeek API
-    const apiUrl = `${API_CONFIG.BASE_URL}/${API_CONFIG.VERSION}${API_CONFIG.ENDPOINTS.GENERATE}`;
-    const response = await fetch(apiUrl, {
+    // 通过代理调用 API
+    const apiPath = `${API_CONFIG.VERSION}${API_CONFIG.ENDPOINTS.GENERATE}`;
+    const response = await proxyRequest(`${PROXY_CONFIG.TARGET_API}/${apiPath}`, {
       method: 'POST',
       headers: {
         ...API_CONFIG.REQUEST.HEADERS,
@@ -164,16 +165,22 @@ app.post('/api/generate', async (req, res) => {
     });
 
     if (!response.ok) {
+      // 处理代理错误
+      const errorType = response.status === 500 ? 'SERVER' :
+                       response.status === 401 ? 'AUTH' :
+                       'NETWORK';
+      
       // 先获取原始响应文本
       const responseText = await response.text();
       let errorData = {};
       
       try {
-        // 尝试解析为 JSON
         errorData = JSON.parse(responseText);
       } catch (e) {
-        // 如果解析失败，使用原始文本
-        errorData = { error: responseText };
+        errorData = { 
+          error: PROXY_CONFIG.ERROR_MESSAGES[errorType],
+          details: responseText
+        };
       }
       
       console.error('API 错误:', {
@@ -181,7 +188,8 @@ app.post('/api/generate', async (req, res) => {
         statusText: response.statusText,
         url: response.url,
         prompt: finalPrompt,
-        error: errorData.error || responseText,
+        error: errorData.error,
+        details: errorData.details,
         requestBody: JSON.stringify({
           model: 'deepseek-api/image-gen',
           prompt: finalPrompt,
@@ -189,7 +197,8 @@ app.post('/api/generate', async (req, res) => {
           size: "384x384"
         })
       });
-      throw new Error(`Image generation failed: ${response.status}`);
+      
+      throw new Error(PROXY_CONFIG.ERROR_MESSAGES[errorType]);
     }
 
     // 先获取响应文本
