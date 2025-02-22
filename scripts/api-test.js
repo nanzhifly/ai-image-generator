@@ -36,11 +36,18 @@ async function checkApiAvailability() {
   try {
     // 使用 models 接口检查 API 可用性
     const response = await fetch(`${TEST_CONFIG.API_URL}/models`, {
+      method: 'GET',
       headers: {
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        ...API_CONFIG.REQUEST.HEADERS
       }
     });
     console.log('API 可用性检查:', response.status);
+    
+    // 获取响应文本以便调试
+    const responseText = await response.text();
+    console.log('响应详情:', responseText);
+    
     return response.ok;
   } catch (error) {
     console.error('API 检查失败:', error);
