@@ -1,43 +1,69 @@
 # API 配置文档
 
+## API 配置规范
+### 1. 环境变量配置
+```env
+# DeepSeek API 配置
+DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx  # 从 platform.deepseek.com 获取
+
+# 环境配置
+NODE_ENV=development  # development | test | production
+```
+
+### 2. API 域名规范
+> ⚠️ 警告：API 域名必须使用 api.siliconflow.cn，不要修改为其他域名！
+
+### 3. 开发环境配置
+```bash
+# 1. 复制环境变量模板
+cp .env.example .env
+
+# 2. 修改 API 密钥（使用编辑器打开 .env）
+# 将 DEEPSEEK_API_KEY 替换为实际的密钥
+
+# 3. 启动开发服务
+# 使用 Node.js 原生 watch 模式，支持热重载
+npm run dev
+
+# 服务器会自动寻找可用端口：
+# - 默认尝试 3000 端口
+# - 如果被占用，会尝试下一个端口
+# - 最多尝试 10 次
+# - 成功后显示实际运行端口
+```
+
 ## DeepSeek API
 - API 文档：https://docs.siliconflow.cn/cn/api-reference/images/images-generations
 - API 密钥：sk-msfzegvkcptjlvqzcnhgzhfzldtepbwhmtsufxwfyfigqstj
 - API 端点：https://api.siliconflow.cn/v1/images/generations
 
 ## 配置说明
-1. 在 js/config.js 中配置：
-```javascript
-export const CONFIG = {
-    API_URL: 'https://api.siliconflow.com/v1/images/generations',
-    API_KEY: 'sk-msfzegvkcptjlvqzcnhgzhfzldtepbwhmtsufxwfyfigqstj',
-    // ...其他配置
-};
+### 环境变量
+```env
+DEEPSEEK_API_KEY=your-api-key
 ```
 
-2. 请求参数示例：
+### API 参数
 ```javascript
 {
-    "model": "deepseek-ai/Janus-Pro-7B",
-    "prompt": "用户输入的描述",
-    "n": 1,
-    "size": "384x384"
+  model: 'deepseek-ai/Janus-Pro-7B',
+  prompt: '用户输入 + 风格提示词',
+  n: 1,
+  size: '384x384',
+  quality: 'fast',
+  num_inference_steps: 35,
+  guidance_scale: 7.5
 }
 ```
 
-3. 响应格式：
-```javascript
-{
-    "images": [
-        {
-            "b64_json": "base64编码的图片数据"
-        }
-    ],
-    "timing": {...},
-    "seed": 1273224706,
-    "shared_id": "0"
-}
-```
++ ### 风格配置
++ ```javascript
++ const stylePrompts = {
++   photo: "realistic photo, 4K, detailed",
++   art: "artistic painting, creative",
++   cartoon: "cartoon style, cute"
++ };
++ ```
 
 ### 代理服务配置
 ```javascript
@@ -141,3 +167,147 @@ headers: {
 ## 错误处理配置
 - 基本错误处理
 - 超时设置 
+
+## 性能监控配置
+
+### 监控端点
+```javascript
+// GET /api/metrics
+{
+  status: 'ok',
+  data: {
+    timestamp: Date,
+    requestCount: Number,
+    avgResponseTime: Number,
+    errorRate: Number,
+    memoryUsage: {
+      heapUsed: Number,
+      heapTotal: Number,
+      rss: Number
+    },
+    cpuUsage: {
+      load: Number
+    },
+    concurrentRequests: Number,
+    maxConcurrentRequests: Number
+  },
+  thresholds: {
+    responseTime: 30000,    // 最大响应时间 (ms)
+    memoryUsage: 80,       // 最大内存使用率 (%)
+    cpuUsage: 70,          // 最大 CPU 使用率 (%)
+    errorRate: 1,          // 最大错误率 (%)
+    concurrentRequests: 10 // 最大并发请求数
+  }
+}
+```
+
+### 监控阈值
+- 响应时间: < 30s
+- 内存使用: < 80%
+- CPU 使用: < 70%
+- 错误率: < 1%
+- 并发数: ≤ 10 
+
+## 相关文档
+- [API 测试文档](./API_TEST.md)
+- [API 问题记录](./API_ISSUES.md)
+- [性能监控文档](./PERFORMANCE_MONITORING.md)
+
+## 性能配置
+> 详细的性能监控配置请参考 [性能监控文档](./PERFORMANCE_MONITORING.md)
+```javascript
+{
+  timeout: 180000,
+  retryCount: 3,
+  retryDelay: 10000,
+}
+```
+
+## 配置原则
+> MVP 阶段配置原则：
+1. 保持配置简单
+2. 避免过度配置
+3. 专注必要功能
+
+### 必要配置
+- API 密钥
+- 基本超时设置
+- 错误重试次数
+
+### 暂不需要
+- 复杂的缓存策略
+- 高级负载均衡
+- 复杂的监控配置 
+
+## 模块导出规范
+### 性能监控
+```javascript
+// 统一使用 metrics 作为导出名
+import { metrics } from './middleware/performanceMonitor.js';
+
+// 使用示例
+app.get('/api/metrics', (req, res) => {
+  const stats = metrics.getStats();
+  res.json(stats);
+});
+```
+
+### 输入验证
+```javascript
+// 统一使用 validateInput 作为导出名
+import { validateInput } from './middleware/validateInput.js';
+
+// 使用示例
+app.post('/api/generate', validateInput, async (req, res) => {
+  // 处理请求
+});
+```
+
+### 推荐调用方式
+```bash
+# 直接调用 DeepSeek API（推荐）
+curl https://api.siliconflow.cn/v1/images/generations \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Origin: https://api.siliconflow.cn" \
+  -d '{
+    "prompt": "Your prompt",
+    "style": "photo"
+  }'
+```
+
+> 注：代理服务调用方式正在优化中，暂时推荐使用直接调用方式 
+
+### API 路由权限
+```
+# 公开路由（无需认证）
+GET /api/health   # 健康检查
+GET /api/metrics  # 性能指标
+
+# 受保护路由（需要认证）
+POST /api/generate  # 图片生成
+``` 
+
+### 性能指标
+```json
+{
+  "基准指标": {
+    "平均响应时间": "< 5ms",    // 非图片生成请求
+    "错误率": "< 1%",
+    "并发处理": "✅ 正常"
+  }
+}
+``` 
+
+### API 响应格式
+```json
+{
+  "success": true,
+  "imageUrl": "https://sc-maas.oss-cn-shanghai.aliyuncs.com/outputs/xxx.png",
+  "timings": {
+    "inference": 14.268
+  },
+  "style": "photo",
+  "prompt": "A cute dog"
+}
+``` 

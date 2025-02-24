@@ -1,4 +1,22 @@
-# 部署文档
+# 部署指南
+
+## 环境要求
+- Node.js >= 14
+- NPM >= 6
+
+## 部署步骤
+1. 克隆代码
+2. 安装依赖：`npm install`
+3. 配置环境变量：
+   ```env
+   DEEPSEEK_API_KEY=your-api-key
+   ```
+4. 启动服务：`npm start`
+
+## 注意事项
+- 确保 API 密钥安全
+- 配置正确的 CORS 策略
+- 设置适当的错误日志
 
 ## 环境要求
 ### MacOS

@@ -6,13 +6,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 body {
-  font-family: var(--font-family);
-  background: var(--bg);
-  color: var(--text);
-  line-height: var(--leading-normal);
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f5f5f7;
+  min-height: 100vh;
 }
 
 /* 布局样式 */
@@ -134,6 +136,40 @@ main {
   margin-top: var(--space-md);
 }
 
+/* 下载按钮样式 */
+.download-btn {
+  display: flex;  /* 改为 flex 布局 */
+  margin: 20px auto;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  align-items: center;
+  gap: 8px;
+}
+
+.download-btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.download-btn .download-icon {
+  font-size: 18px;
+}
+
+.download-btn:disabled {
+  background: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+.download-btn[hidden] {
+  display: none;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   main {
@@ -147,4 +183,72 @@ main {
   .generate-btn {
     width: 100%;
   }
+}
+
+/* 输入框样式 */
+textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid #d1d1d1;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-size: 16px;
+  resize: vertical;
+}
+
+/* 按钮组样式 */
+.style-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* 风格按钮 */
+button:not(.generate) {
+  background: #fff;
+  border: 1px solid #d1d1d1;
+}
+
+button:not(.generate):hover {
+  background: #f0f0f0;
+}
+
+/* 生成按钮 */
+.generate {
+  background: #0071e3;
+  color: white;
+  padding: 10px 20px;
+  font-size: 16px;
+}
+
+.generate:hover {
+  background: #0077ed;
+}
+
+/* 页脚样式 */
+footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #d1d1d1;
+  color: #666;
+  font-size: 14px;
+}
+
+footer a {
+  color: #0071e3;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
 } 

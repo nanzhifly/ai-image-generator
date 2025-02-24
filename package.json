@@ -1,15 +1,27 @@
 {
-  "name": "ai-image-generator",
+  "name": "deepseek-image-generator",
   "version": "1.0.0",
   "type": "module",
   "description": "基于 DeepSeek API 的简单图片生成工具",
   "main": "src/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node start.js",
+    "dev": "node --watch start.js",
     "build": "echo 'No build step'",
     "deploy": "vercel --prod",
-    "preview": "vercel"
+    "preview": "vercel",
+    "test": "npm run test:api",
+    "test:auth": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js tests/middleware/auth.test.js --detectOpenHandles --forceExit",
+    "test:api": "node --experimental-vm-modules node_modules/jest/bin/jest.js api --coverage --detectOpenHandles --testTimeout=120000 --forceExit --runInBand",
+    "test:e2e": "jest e2e --coverage",
+    "test:perf": "jest perf",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
+    "release": "bash scripts/release.sh",
+    "prerelease": "npm run test && npm run build",
+    "postrelease": "npm run deploy",
+    "test:core": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js tests/core/* --detectOpenHandles --forceExit",
+    "test:pre-deploy": "NODE_ENV=test jest tests/core/* --runInBand --detectOpenHandles --forceExit",
+    "test:setup": "cp .env.example .env.test"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -18,7 +30,13 @@
     "node-fetch": "^2.7.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.3"
+    "@babel/core": "^7.26.9",
+    "@babel/preset-env": "^7.26.9",
+    "babel-jest": "^29.7.0",
+    "conventional-changelog-cli": "^3.0.0",
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.3",
+    "supertest": "^6.3.4"
   },
   "directories": {
     "doc": "docs",

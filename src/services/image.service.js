@@ -15,13 +15,22 @@ export class ImageService {
         }
     }
 
-    downloadImage(url) {
+    /**
+     * 下载生成的图片
+     * @param {string} url - 图片URL
+     */
+    async downloadImage(url) {
         try {
+            // 创建下载链接
             const link = document.createElement('a');
             link.href = url;
             link.download = `deepseek-image-${Date.now()}.png`;
+            
+            // 添加到文档中并触发点击
             document.body.appendChild(link);
             link.click();
+            
+            // 清理
             document.body.removeChild(link);
         } catch (error) {
             console.error('下载失败:', error);

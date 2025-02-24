@@ -40,7 +40,7 @@
 ### 0. 环境准备
 #### 安装 Vercel CLI
 ```bash
-# 安装 Vercel CLI
+# Install Vercel CLI
 npm install -g vercel
 ```
 
@@ -49,30 +49,30 @@ npm install -g vercel
 2. 登录状态丢失
 3. 网络连接问题
 ```bash
-# 如果出现 "无法访问此网站" 或 "ERR_CONNECTION_CLOSED"
+# If you see "Cannot access this site" or "ERR_CONNECTION_CLOSED"
 
-# 1. 检查网络连接
+# 1. Check network connection
 ping vercel.com
 
-# 2. 尝试使用其他网络（如手机热点）
+# 2. Try another network (e.g. mobile hotspot)
 
-# 3. 如果使用代理，确保：
-# - 代理服务器正常运行
-# - 已将 vercel.com 添加到代理规则
+# 3. If using proxy, ensure:
+# - Proxy server is running
+# - vercel.com is added to proxy rules
 ```
 
 2. 验证安装
 ```bash
-# 检查 vercel 版本
+# Check vercel version
 vercel --version
 
-# 如果看到类似下面的输出，说明安装成功：
+If you see output like this, installation is successful:
 # Vercel CLI 41.1.4
 ```
 
 #### 登录步骤
 ```bash
-# 登录 Vercel
+# Login to Vercel
 vercel login
 ```
 
@@ -85,40 +85,40 @@ vercel login
 
 #### 验证登录状态
 ```bash
-# 检查登录状态
+# Check login status
 vercel whoami
 ```
 
 #### 项目关联
 ```bash
-# 关联已有项目
+# Link existing project
 vercel link
 
-# 选择 AI-IMAGE-GENERATOR 项目
+# Select AI-IMAGE-GENERATOR project
 ```
 
 #### 环境变量设置
 ```bash
-# 添加 API 密钥
+# Add API key
 vercel env add AI_IMAGE_GENERATOR_API_KEY
 
-# 验证环境变量
+# Verify environment variables
 vercel env ls
 ```
 
 #### 项目设置问题答案
 ```bash
 ? Set up and deploy? [Y/n] y
-? Which scope? [选择你的个人账号]
+? Which scope? [Select your personal account]
 ? Link to existing project? [y/N] n
 ? What's the name of your project? ai-image-generator
 ? In which directory is your code located? ./
 ? Want to modify these settings? [y/N] n
 
-# 接下来 Vercel 会自动：
-# 1. 创建新项目
-# 2. 构建项目
-# 3. 部署到开发环境
+# Vercel will automatically:
+# 1. Create new project
+# 2. Build project
+# 3. Deploy to development
 ```
 
 ### 1. 项目配置
@@ -232,3 +232,25 @@ vercel list
 ### 7. 回滚方案
 - 使用 Vercel Dashboard 回滚
 - 或使用命令行：`vercel rollback` 
+
+## 环境配置
+> 详细配置说明请参考 [API 配置文档](../docs/API_CONFIG.md)
+
+1. 配置环境变量：
+   ```env
+   NODE_ENV=production            # 生产环境必须设置
+   ```
+
+### 开发环境
+```bash
+# 使用 Node.js watch 模式（推荐）
+npm run dev
+
+# 服务器会自动：
+# - 检测端口占用
+# - 尝试使用下一个可用端口
+# - 提供清晰的启动状态
+
+# 或使用生产模式
+npm start
+```

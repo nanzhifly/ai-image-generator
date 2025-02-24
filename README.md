@@ -1,67 +1,48 @@
 # DeepSeek Image Generator
 
-基于 DeepSeek API 的图片生成工具，当前为 MVP 阶段。
+基于 DeepSeek API 的图片生成工具，支持多种风格生成。
 
-## 开发规范
-- [语言规范](./LANGUAGE_GUIDELINES.md)
-- [开发指南](./DEVELOPMENT.md)
-- [测试用例](./docs/TEST_CASES.md)
-
-## 项目状态
-- 版本：v0.1.0（2024-02-22）
-- 状态：MVP 开发中 - 核心功能已验证
-- 计划：本周完成部署
-
-## 语言规范
-### 文档语言
-- 所有文档使用中文
-- 包括开发文档和注释
-
-### 界面语言
-- 所有用户界面使用英文
-- 包括按钮文本和提示信息
-- 错误提示使用英文
-
-## 核心功能
-### 1. 图片生成 ✅
-- API 集成完成
-- 支持三种风格
-- 已完成测试
-
-### 2. 图片下载 ⏳
-- 前端开发中
-- 支持直接下载
-- 计划今日完成
-
-### 3. 部署准备 📝
-- Vercel 部署
-- 环境配置
-- 本周完成
+## 主要功能
+- 🖼️ AI 图片生成
+- 🎨 支持三种风格：写实、艺术、卡通
+- ⚡️ 简单的 API 接口
 
 ## 快速开始
 ```bash
-# 1. 配置密钥
-echo "DEEPSEEK_API_KEY=your-key" > .env
+# 1. 克隆项目
+git clone <repository-url>
 
-# 2. 启动服务
+# 2. 安装依赖
+npm install
+
+# 3. 配置环境变量
+cp .env.example .env
+# 编辑 .env 文件，添加你的 DEEPSEEK_API_KEY
+
+# 4. 启动服务
 npm run dev
-
-# 3. 访问服务
-open http://localhost:3000
 ```
 
-## 项目结构
-```
-/
-├── index.html    # 前端界面
-├── server.js     # API 服务
-└── vercel.json   # 部署配置
+## API 使用示例
+```bash
+curl http://localhost:3000/api/generate \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A cute dog",
+    "style": "photo"
+  }'
 ```
 
-## 开发说明
-- 专注核心功能
-- 保持简单配置
-- 快速迭代验证
+## 使用说明
+1. 输入图片描述（50-1000字）
+2. 选择生成风格（photo/art/cartoon）
+3. 等待图片生成（约15-30秒）
+
+## 相关文档
+- [API 配置](docs/API_CONFIG.md)
+- [部署指南](docs/DEPLOYMENT.md)
+- [更新日志](docs/API_CHANGELOG.md)
 
 ## 许可证
 MIT 开源协议
@@ -69,5 +50,6 @@ MIT 开源协议
 ## 关于 DeepSeek
 DeepSeek Image Generator 是一个基于 DeepSeek AI 技术的图片生成工具，
 提供直观的界面和高质量的图片生成能力。
+
 ## 贡献指南
 请查看 [语言规范](./LANGUAGE_GUIDELINES.md) 了解更多信息。

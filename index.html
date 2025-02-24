@@ -23,6 +23,10 @@
     <meta property="twitter:image" content="https://your-domain.com/og-image.jpg">
     <title>DeepSeek Image Generator</title>
     <link rel="stylesheet" href="src/styles/main.css">
+    <script type="module">
+        import { ImageService } from '/src/services/image.service.js';
+        window.ImageService = ImageService;
+    </script>
     <script>
       // Global configuration
       const CONFIG = {
@@ -38,112 +42,87 @@
       // Initialize after page load
       window.onload = function() {
         // Get DOM elements
-        const promptInput = document.getElementById('prompt-input');
-        const styleSelect = document.getElementById('style-select');
-        const generateBtn = document.getElementById('generate-btn');
-        const imageContainer = document.getElementById('image-container');
+        const promptInput = document.querySelector('.prompt-input');
+        const styleButtons = document.querySelectorAll('.style-btn');
+        const generateBtn = document.querySelector('.generate-btn');
+        const imageContainer = document.querySelector('.image-preview');
         const downloadBtn = document.getElementById('download-btn');
-        const placeholder = document.querySelector('.placeholder');
-        const progressContainer = imageContainer.querySelector('.progress-container');
-        const resultImage = imageContainer.querySelector('.result-image');
-        const charCount = document.querySelector('.char-count');
+        const loadingIndicator = document.querySelector('.loading-indicator');
 
-        // Update character count
-        promptInput.addEventListener('input', function() {
-          const count = this.value.length;
-          charCount.textContent = `${count}/${CONFIG.MAX_LENGTH}`;
+        // Create ImageService instance
+        const imageService = new ImageService();
+
+        // Style button click handler
+        styleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons
+                styleButtons.forEach(btn => btn.classList.remove('active'));
+                // Add active class to clicked button
+                button.classList.add('active');
+            });
         });
+        
+        // Set default style
+        styleButtons[0].classList.add('active');
+
+        // Display image and download button
+        function displayImage(url) {
+          const img = document.createElement('img');
+          img.src = url;
+          img.alt = 'Generated image';
+          imageContainer.innerHTML = '';
+          imageContainer.appendChild(img);
+          imageContainer.hidden = false;
+          
+          // 显示下载按钮
+          if (downloadBtn) {
+            downloadBtn.hidden = false;
+            downloadBtn.style.display = 'flex';
+          }
+          
+          // 绑定下载事件
+          downloadBtn.onclick = () => {
+            imageService.downloadImage(url)
+              .catch(error => {
+                showError('Download failed', error.message);
+              });
+          };
+        }
 
         // Generate image function
         async function generateImage() {
-          const maxRetries = 2;
-          const timeout = 30000;
-          
           try {
-            generateBtn.disabled = true;
-            // Show loading state
-            placeholder.style.display = 'block';
-            placeholder.innerHTML = `
-              <div class="loading-status">
-                <div class="spinner"></div>
-                <p>Generating your image...</p>
-              </div>
-            `;
-            resultImage.innerHTML = '';
-            
-            // Show progress bar
-            progressContainer.style.display = 'block';
-            const progressBar = progressContainer.querySelector('.progress-bar');
-            progressBar.style.width = '0%';
-            
-            // Add timeout control
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), timeout);
-            
-            // Fetch with retry function
-            async function fetchWithRetry(retries = 0) {
-              try {
-                const response = await fetch('/api/generate', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    prompt: promptInput.value,
-                    style: styleSelect.value
-                  }),
-                  signal: controller.signal
-                });
-                
-                if (!response.ok) {
-                  const errorData = await response.json();
-                  throw new Error(errorData.error || `Server error: ${response.status}`);
-                }
-                
-                return await response.json();
-              } catch (error) {
-                if (retries < maxRetries) {
-                  console.log(`Retrying... (${retries + 1}/${maxRetries})`);
-                  return await fetchWithRetry(retries + 1);
-                }
-                throw error;
-              }
+            // Validate input
+            if (!promptInput.value.trim()) {
+                showError('Invalid Input', 'Please enter an image description');
+                return;
             }
             
-            const data = await fetchWithRetry();
-            clearTimeout(timeoutId);
+            generateBtn.disabled = true;
+            loadingIndicator.hidden = false;
+            downloadBtn.hidden = true;
+
+            const selectedStyle = document.querySelector('.style-btn.active')?.dataset.style || 'photo';
+            const response = await fetch('/api/generate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                prompt: promptInput.value,
+                style: selectedStyle
+              })
+            });
+
+            if (!response.ok) throw new Error('Failed to generate image');
             
-            // Hide progress bar
-            progressContainer.style.display = 'none';
-            
-            // Show generated image
-            const img = document.createElement('img');
-            img.src = data.url;
-            img.alt = promptInput.value;
-            img.onload = function() {
-              placeholder.style.display = 'none';
-              resultImage.style.display = 'block';
-            };
-            img.onerror = function() {
-              console.error('Image load failed');
-              showError('Image Load Error', 'Failed to load the generated image. Please try again.');
-            };
-            resultImage.appendChild(img);
-            
-            // Show download button
-            downloadBtn.style.display = 'block';
+            const data = await response.json();
+            await displayImage(data.url);
             
           } catch (error) {
-            console.error('Generation error:', error);
-            let title = 'Generation Error';
-            let message = 'Failed to generate image. ';
-            if (error.name === 'AbortError') {
-              message += 'Request timed out. Please try again.';
-            } else {
-              message += error.message;
-            }
-            showError(title, message);
+            console.error('Generation failed:', error);
+            showError('Generation failed', error.message);
           } finally {
             generateBtn.disabled = false;
-            progressContainer.style.display = 'none';
+            loadingIndicator.hidden = true;
           }
         }
         
@@ -152,12 +131,15 @@
         
         // Show error message
         function showError(title, message) {
-          placeholder.innerHTML = `
-            <div class="error-container">
-              <h3>${title}</h3>
-              <p>${message}</p>
-            </div>
+          const errorDiv = document.createElement('div');
+          errorDiv.className = 'error-message';
+          errorDiv.innerHTML = `
+            <h3>${title}</h3>
+            <p>${message}</p>
           `;
+          imageContainer.innerHTML = '';
+          imageContainer.appendChild(errorDiv);
+          downloadBtn.hidden = true; // Hide download button when an error occurs
         }
       };
     </script>
@@ -185,6 +167,10 @@
         <section class="output-section">
             <div class="image-preview" hidden></div>
             <div class="error-message" hidden></div>
+            <button id="download-btn" class="download-btn" hidden>
+                <span class="download-icon">⬇️</span>
+                Download Image
+            </button>
         </section>
     </main>
 

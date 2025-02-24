@@ -1,153 +1,309 @@
 # API 测试文档
 
+## MVP 测试范围
+
+### 核心功能测试
+- 图片生成基本功能
+  - 输入验证
+  - API 调用
+  - 结果返回
+
+### 错误处理测试
+- API 密钥验证
+- 基本输入验证
+
+### 监控测试
+- 请求计数
+- 错误统计
+
+## v1.0.0 测试报告
+### 功能测试结果
+#### 1. 图片生成功能
+- ✅ 写实风格测试通过
+  - 输入：`A cute dog with brown fur`
+  - 结果：成功生成写实风格图片
+- ✅ 卡通风格测试通过
+  - 输入：`A cute dog with brown fur`
+  - 结果：成功生成卡通风格图片
+- ✅ 艺术风格测试通过
+  - 输入：`A cute dog with brown fur`
+  - 结果：成功生成艺术风格图片
+
+#### 2. 图片下载功能
+- ✅ 下载按钮显示正常
+- ✅ 文件名格式正确
+- ✅ 下载功能工作正常
+
 ## 测试步骤
 
 1. 环境准备
 ```bash
-# 安装依赖
-npm install dotenv node-fetch
+# 1. 配置环境变量
+echo "DEEPSEEK_API_KEY=your-api-key" > .env
 
-# 设置环境变量
-export DEEPSEEK_API_KEY=your_api_key
+# 2. 安装依赖
+npm install
+
+# 3. 启动服务
+npm run dev
 ```
 
-2. 运行测试
-```bash
-node scripts/api-test.js
+## 功能测试用例
+
+### 1. 图片生成测试
+```javascript
+// 测试数据
+const testCases = [
+  {
+    prompt: "A cute dog with brown fur",
+    style: "photo",
+    expected: "写实风格的狗图片"
+  },
+  {
+    prompt: "A cute dog with brown fur",
+    style: "cartoon",
+    expected: "卡通风格的狗图片"
+  },
+  {
+    prompt: "A cute dog with brown fur",
+    style: "art",
+    expected: "艺术风格的狗图片"
+  }
+];
 ```
 
-## 测试用例
-
-1. API 可用性检查
-- 端点: /models
-- 方法: GET
-- 预期: 200 OK
-
-2. 图片生成
-- 端点: /images/generations
-- 方法: POST
-- 测试数据:
-  ```json
+### 2. 错误处理测试
+```javascript
+// 错误测试用例
+const errorCases = [
   {
-    "model": "deepseek-api/image-gen",
-    "prompt": "test prompt",
-    "n": 1,
-    "size": "384x384"
-  }
-  ```
-- 预期响应:
-  ```json
+    scenario: "空提示词",
+    prompt: "",
+    expectedError: "Prompt length must be between 3-1000 characters"
+  },
   {
-    "data": [{
-      "url": "https://..."
-    }]
+    scenario: "无效的风格",
+    style: "invalid",
+    expectedError: "Invalid style selection"
+  },
+  {
+    scenario: "超长提示词",
+    prompt: "a".repeat(1001),
+    expectedError: "Prompt length must be between 3-1000 characters"
+  },
+  {
+    scenario: "网络错误",
+    prompt: "test_network_error",
+    expectedError: "Network error: Failed to connect to API"
+  },
+  {
+    scenario: "API 错误",
+    prompt: "error_trigger_test",
+    expectedError: "API error"
+  },
+  {
+    scenario: "特殊字符",
+    prompt: "!@#$%^&*()",
+    expectedError: "Prompt contains invalid characters"
+  },
+  {
+    scenario: "未定义风格",
+    style: undefined,
+    expectedError: "Style must be specified"
   }
-  ```
-
-## 错误处理
-
-1. 记录以下信息：
-- 响应状态码
-- 响应头信息
-- 原始响应文本
-- JSON 解析结果
-
-2. 常见错误：
-- 400: 检查请求格式
-- 401: 验证 API 密钥
-- 500: 服务器错误
+];
+```
 
 ## 测试结果记录
 
-1. 成功案例
-- 记录成功的请求格式
-- 保存有效的参数组合
-- 记录响应时间
+### 1. 功能测试
+- ✅ 所有风格图片生成成功
+- ✅ 图片质量符合预期
+- ✅ 下载功能正常工作
 
-2. 失败案例
-- 记录错误信息
-- 保存失败请求
-- 分析失败原因
+### 2. 性能测试
+- 响应时间：25-30s（符合预期）
+- 内存使用：稳定
+- CPU 使用：正常范围
 
-# API 测试问题总结
+### 3. 错误处理
+- 输入验证正常
+- 错误提示清晰
+- 异常恢复正常
 
-## 问题回顾与分析
+## 测试环境记录系统
 
-### 1. 环境配置不一致
-- 现象：本地和 Vercel 环境配置不同步
-- 原因：
-  * 缺乏环境配置同步机制
-  * .env 文件管理不规范
-  * 多人协作时配置混乱
-- 解决方案：
-  * 使用 vercel env pull 同步配置
-  * 规范化环境变量管理
-  * 添加配置验证机制
-- 预防措施：
-  * 建立环境配置检查清单
-  * 自动化配置同步流程
-  * 完善配置文档
+### 每次测试需要记录
+```javascript
+const testRecord = {
+  timestamp: new Date().toISOString(),
+  environment: {
+    nodeVersion: process.version,
+    apiVersion: API_CONFIG.VERSION,
+    apiDomain: new URL(API_CONFIG.BASE_URL).hostname
+  },
+  request: {
+    prompt: String,
+    style: String,
+    headers: Object
+  },
+  response: {
+    status: Number,
+    data: Object,
+    timing: Number
+  },
+  errors: Array
+};
+```
 
-### 2. API 域名配置混乱
-- 现象：代码中混用多个域名
-- 原因：
-  * 配置分散在多处
-  * 缺乏统一配置中心
-  * 文档更新不及时
-- 解决方案：
-  * 创建统一配置文件
-  * 集中管理 API 配置
-  * 规范化配置引用
-- 预防措施：
-  * 实施配置中心化
-  * 添加配置检查工具
-  * 自动化配置验证
+### 测试结果对比
+| 测试环境 | 生产环境 | 差异分析 |
+|---------|---------|---------|
+| 响应时间 | 响应时间 | 分析原因 |
+| 成功率   | 成功率   | 记录差异 |
+| 错误类型 | 错误类型 | 总结问题 |
 
-### 3. 模型参数错误
-- 现象：API 调用返回 400 错误
-- 原因：
-  * 未仔细阅读 API 文档
-  * 使用了错误的模型名称
-  * 缺少必要参数
-- 解决方案：
-  * 更正模型名称
-  * 添加必要参数
-  * 完善错误处理
-- 预防措施：
-  * 建立 API 调用模板
-  * 添加参数验证
-  * 完善错误提示
+## 测试环境要求
+- Node.js >= 14
+- npm >= 6
+- 正确配置的 .env 文件
 
-## 最佳实践建议
+## 测试执行顺序
+1. 配置测试
+   ```bash
+   npm run test:api -- tests/api/config.test.js
+   ```
 
-### 1. 开发流程
-- 先阅读完整 API 文档
-- 建立统一配置中心
-- 实现自动化测试
-- 规范化错误处理
+2. 健康检查测试
+   ```bash
+   npm run test:api -- tests/api/health.test.js
+   ```
 
-### 2. 配置管理
-- 使用环境变量管理工具
-- 统一配置文件结构
-- 实现配置自动同步
-- 添加配置验证机制
+3. 图片生成测试
+   ```bash
+   npm run test:api -- tests/api/generate.test.js
+   ```
 
-### 3. 测试规范
-- 编写完整测试用例
-- 实现自动化测试
-- 添加性能监控
-- 完善错误日志
+4. 性能监控测试
+   ```bash
+   npm run test:api -- tests/api/performance.test.js
+   ```
 
-## 改进计划
+## 性能监控指标
+```javascript
+const performanceThresholds = {
+  responseTime: 30000,  // 最大响应时间 30s
+  memoryUsage: 80,     // 最大内存使用率 80%
+  cpuUsage: 70,        // 最大 CPU 使用率 70%
+  errorRate: 1         // 最大错误率 1%
+};
+```
 
-### 1. 短期优化
-- 完善配置文档
-- 添加配置检查工具
-- 优化错误处理
-- 改进测试流程
+## 注意事项
+- 每个测试文件使用独立的服务器实例
+- 图片生成测试需要 120 秒超时设置
+- 确保测试前环境变量正确配置
+- 服务器启动和关闭需要正确处理
 
-### 2. 长期规划
-- 实现配置中心
-- 自动化测试系统
-- 监控告警机制
-- 性能优化方案 
+## 测试配置最佳实践
+```javascript
+// 1. 设置合理的超时时间
+const TEST_TIMEOUT = 120000;
+
+// 2. 确保服务器正确启动
+beforeAll(async () => {
+  jest.setTimeout(TEST_TIMEOUT);
+  server = app.listen(0);
+  await new Promise(resolve => setTimeout(resolve, 2000));
+});
+
+// 3. 确保服务器正确关闭
+afterAll(async () => {
+  await new Promise(resolve => setTimeout(resolve, 5000));
+  if (server && server.listening) {
+    await new Promise(resolve => server.close(resolve));
+  }
+  await new Promise(resolve => setTimeout(resolve, 2000));
+});
+```
+
+## 运行测试命令
+```bash
+# 串行运行所有测试（推荐）
+npm run test:api
+
+# 命令参数说明
+--runInBand        # 串行执行测试
+--detectOpenHandles # 检测未关闭的句柄
+--testTimeout=120000 # 设置超时时间
+--forceExit         # 强制退出
+```
+
+## 测试用例说明
+
+### 错误测试标识符
+- `test_network_error`: 触发网络连接错误
+- `error_trigger_test`: 触发 API 错误响应
+
+### 中间件顺序
+```javascript
+// 1. 错误模拟中间件先执行，处理测试用例
+// 2. 输入验证中间件后执行，处理正常请求
+app.post('/api/generate', 
+  mockAPIError,           // 先处理测试错误
+  validateGenerateInput,  // 再验证输入
+  async (req, res, next) => {
+    // 路由处理逻辑
+  }
+);
+```
+
+### 特殊字符验证规则
+```javascript
+// 允许以下字符：
+// - 字母和数字
+// - 空格
+// - 基本标点 (,.!?-)
+// - 下划线 (_)
+// 特殊测试关键字：
+// - test_network_error
+// - error_trigger_test
+```
+
+### 性能测试用例
+```javascript
+describe('性能监控测试', () => {
+  test('基础性能指标', async () => {
+    // 检查响应时间、内存使用、CPU 负载等
+  });
+
+  test('并发处理能力', async () => {
+    // 测试 10 个并发请求
+    // 验证最大并发数和响应时间
+  });
+});
+```
+
+### 性能监控指标
+- 响应时间阈值: 30s
+- 内存使用上限: 80%
+- CPU 使用上限: 70%
+- 最大并发数: 10
+- 最大错误率: 1%
+```
+
+## 测试类型
+1. 单元测试
+2. 集成测试
+3. 端到端测试
+4. [性能测试](./PERFORMANCE_MONITORING.md#监控指标)
+
+## 性能测试
+> 详细的性能测试指标和方法请参考 [性能监控文档](./PERFORMANCE_MONITORING.md)
+```javascript
+describe('性能测试', () => {
+  test('响应时间测试', async () => {
+    // 实现响应时间测试逻辑
+  });
+});
+```

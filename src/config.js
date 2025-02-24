@@ -1,44 +1,50 @@
 // API 配置
 export const API_CONFIG = {
   // API 基础配置
-  BASE_URL: 'https://api.siliconflow.cn/v1',  // 使用实际工作的域名
-  TIMEOUT: 30000,
-  
-  // API 端点
+  BASE_URL: 'https://api.siliconflow.cn/v1',
   ENDPOINTS: {
-    GENERATE: 'images/generations',  // 移除前导斜杠
-    MODELS: 'models',
-    HEALTH: 'health'
+    GENERATE: '/images/generations',
+    HEALTH: '/health',
+    METRICS: '/metrics'
   },
   
   // 请求配置
   REQUEST: {
-    MAX_RETRIES: 2,
-    RETRY_DELAY: 1000,
+    TIMEOUT: 60000,    // 60秒超时
+    RETRY: 3,          // 重试3次
     HEADERS: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
       'Origin': 'https://api.siliconflow.cn',
       'Referer': 'https://api.siliconflow.cn/',
-      'User-Agent': 'DeepSeek-Image-Generator'
+      'User-Agent': 'DeepSeek-Image-Generator',
+      'Accept': 'application/json'
     }
   },
   
-  // 响应格式
-  RESPONSE: {
-    SUCCESS_CODES: [200, 201],
-    ERROR_CODES: {
-      AUTH_ERROR: 401,
-      INVALID_REQUEST: 400,
-      SERVER_ERROR: 500
-    }
+  // 错误信息
+  ERRORS: {
+    TIMEOUT: '请求超时，请重试',
+    API_ERROR: '服务异常，请稍后再试',
+    INVALID_INPUT: '输入无效，请检查后重试',
+    NETWORK_ERROR: '网络连接失败，请检查网络'
+  },
+
+  // 图片生成参数
+  GENERATE: {
+    model: 'deepseek-ai/Janus-Pro-7B',
+    n: 1,
+    size: '384x384',
+    quality: 'fast',
+    num_inference_steps: 35,
+    guidance_scale: 7.5
   }
 };
 
 // 环境配置
 export const ENV_CONFIG = {
+  PORT: process.env.PORT || 3000,  // 添加默认端口
+  API_KEY_PREFIX: 'sk-',
   REQUIRED_VARS: ['DEEPSEEK_API_KEY'],
-  API_KEY_PREFIX: 'sk-'
+  // ... 其他配置
 };
 
 // 日志配置
@@ -50,4 +56,26 @@ export const LOG_CONFIG = {
     DEBUG: 'debug'
   },
   MAX_LENGTH: 1000
-}; 
+};
+
+// 域名验证常量
+const VALID_API_DOMAIN = 'api.siliconflow.cn';
+
+// 域名验证函数
+function validateApiDomain(url) {
+  try {
+    const domain = new URL(url).hostname;
+    if (domain !== VALID_API_DOMAIN) {
+      throw new Error(`Invalid API domain: ${domain}. Expected: ${VALID_API_DOMAIN}`);
+    }
+    return true;
+  } catch (error) {
+    console.error('API 域名验证失败:', error);
+    process.exit(1);
+  }
+}
+
+// 验证所有 API 相关域名
+validateApiDomain(API_CONFIG.BASE_URL);
+validateApiDomain(API_CONFIG.REQUEST.HEADERS.Origin);
+validateApiDomain(new URL(API_CONFIG.REQUEST.HEADERS.Referer).origin); 
