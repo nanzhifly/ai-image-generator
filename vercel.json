@@ -1,21 +1,12 @@
 {
   "version": 2,
   "builds": [
-    { "src": "index.html", "use": "@vercel/static" },
-    { "src": "server.js", "use": "@vercel/node" }
+    { "src": "start.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/api/(.*)", "dest": "/server.js" },
-    { "src": "/proxy-image", "dest": "/server.js" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "src": "/(.*)", "dest": "/start.js" }
   ],
   "env": {
-    "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"
-  },
-  "build": {
-    "env": {
-      "DEEPSEEK_API_KEY": "${DEEPSEEK_API_KEY}"
-    }
+    "DEEPSEEK_API_KEY": "@deepseek_api_key"
   }
 } 

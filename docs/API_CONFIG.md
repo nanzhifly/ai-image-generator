@@ -310,4 +310,14 @@ POST /api/generate  # 图片生成
   "style": "photo",
   "prompt": "A cute dog"
 }
+```
+
+## 降级响应格式
+```json
+{
+  "success": false,
+  "fallback": true,
+  "error": "DeepSeek API is currently experiencing high load. Please try again later.",
+  "style": "photo"
+}
 ``` 

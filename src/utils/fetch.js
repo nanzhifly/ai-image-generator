@@ -12,7 +12,7 @@ export async function fetchWithRetry(url, options, maxRetries = 3) {
     try {
       const response = await fetch(url, {
         ...options,
-        timeout: options.timeout || 30000
+        timeout: options.timeout || 180000
       });
       
       if (response.ok) return response;
@@ -24,12 +24,12 @@ export async function fetchWithRetry(url, options, maxRetries = 3) {
       });
       
       // 等待一段时间后重试
-      await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+      await new Promise(r => setTimeout(r, 10000));
       
     } catch (error) {
       lastError = error;
       console.error(`重试 ${i + 1}/${maxRetries}:`, error);
-      await new Promise(r => setTimeout(r, 1000 * (i + 1)));
+      await new Promise(r => setTimeout(r, 10000));
     }
   }
   

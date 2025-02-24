@@ -13,6 +13,7 @@ export function createApp() {
   // 中间件
   app.use(cors());
   app.use(express.json());
+  app.use(express.static('public'));
   app.use(performanceMonitor);
   
   // 健康检查路由 (无需认证)

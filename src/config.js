@@ -10,13 +10,13 @@ export const API_CONFIG = {
   
   // 请求配置
   REQUEST: {
-    TIMEOUT: 60000,    // 60秒超时
+    TIMEOUT: 180000,   // 180秒超时
     RETRY: 3,          // 重试3次
     HEADERS: {
+      'Content-Type': 'application/json',
       'Origin': 'https://api.siliconflow.cn',
       'Referer': 'https://api.siliconflow.cn/',
-      'User-Agent': 'DeepSeek-Image-Generator',
-      'Accept': 'application/json'
+      'User-Agent': 'DeepSeek-Image-Generator'
     }
   },
   
@@ -33,9 +33,20 @@ export const API_CONFIG = {
     model: 'deepseek-ai/Janus-Pro-7B',
     n: 1,
     size: '384x384',
-    quality: 'fast',
-    num_inference_steps: 35,
+    quality: 'draft',
+    num_inference_steps: 20,
     guidance_scale: 7.5
+  },
+
+  // 降级配置
+  FALLBACK: {
+    ENABLED: true,
+    EXAMPLES: {
+      photo: '/examples/photo.jpg',
+      art: '/examples/art.jpg',
+      cartoon: '/examples/cartoon.jpg'
+    },
+    MESSAGE: 'Service is temporarily in maintenance mode. Showing example images.'
   }
 };
 

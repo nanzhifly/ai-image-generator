@@ -53,3 +53,8 @@ DeepSeek Image Generator 是一个基于 DeepSeek AI 技术的图片生成工具
 
 ## 贡献指南
 请查看 [语言规范](./LANGUAGE_GUIDELINES.md) 了解更多信息。
+
+## 已知问题
+
+> ⚠️ 2024-02-24: DeepSeek API 服务目前存在负载问题，暂时采用降级方案处理。
+> 详见 [API 问题记录](docs/API_ISSUES.md)

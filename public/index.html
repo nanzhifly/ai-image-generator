@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek Image Generator</title>
+    <link rel="stylesheet" href="/styles/main.css">
+</head>
+<body>
+    <main>
+        <h1>DeepSeek Image Generator</h1>
+        
+        <div class="input-section">
+            <textarea 
+                id="prompt" 
+                placeholder="Describe the image you want to generate (50-1000 characters)"
+                rows="4"
+            ></textarea>
+        </div>
+
+        <div class="style-buttons">
+            <button onclick="setStyle('photo')" class="style-btn">Photo</button>
+            <button onclick="setStyle('art')" class="style-btn">Art</button>
+            <button onclick="setStyle('cartoon')" class="style-btn">Cartoon</button>
+        </div>
+
+        <button onclick="generateImage()" class="generate">Generate</button>
+
+        <div id="result" class="result">
+            <img id="generated-image" style="display: none; max-width: 100%;">
+        </div>
+    </main>
+
+    <script>
+        let currentStyle = 'photo';
+        let isGenerating = false;  // Track generation status
+
+        function setStyle(style) {
+            currentStyle = style;
+            document.querySelectorAll('.style-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        async function generateImage() {
+            if (isGenerating) return;  // Prevent multiple requests
+            isGenerating = true;
+            
+            const generateButton = document.querySelector('.generate');
+            generateButton.disabled = true;
+            generateButton.textContent = 'Generating...';
+
+            const prompt = document.getElementById('prompt').value;
+            const result = document.getElementById('result');
+            const img = document.getElementById('generated-image');
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Origin': 'https://api.siliconflow.cn',
+                        'Referer': 'https://api.siliconflow.cn/',
+                        'User-Agent': 'DeepSeek-Image-Generator'
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek-ai/Janus-Pro-7B',
+                        prompt,
+                        style: currentStyle,
+                        n: 1,
+                        size: '384x384',
+                        quality: 'draft',
+                        num_inference_steps: 20
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    img.src = data.imageUrl;
+                    img.style.display = 'block';
+                } else {
+                    img.style.display = 'none';
+                    result.innerHTML = `<p class="error">${data.error}</p>`;
+                }
+            } catch (error) {
+                result.innerHTML = '<p class="error">Service is busy, please try again in a few minutes</p>';
+            } finally {
+                isGenerating = false;
+                generateButton.disabled = false;
+                generateButton.textContent = 'Generate';
+            }
+        }
+    </script>
+</body>
+</html> 

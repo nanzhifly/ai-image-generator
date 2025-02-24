@@ -19,8 +19,11 @@ router.post('/', async (req, res, next) => {
     const response = await fetchWithRetry(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.GENERATE}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'Origin': 'https://api.siliconflow.cn',
+        'Referer': 'https://api.siliconflow.cn/',
+        'User-Agent': 'DeepSeek-Image-Generator',
         ...API_CONFIG.REQUEST.HEADERS
       },
       timeout: API_CONFIG.REQUEST.TIMEOUT,
@@ -31,17 +34,14 @@ router.post('/', async (req, res, next) => {
       })
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('API Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers),
-        error: errorData,
-        url: response.url,
-        method: 'POST'
+    if (!response.ok || API_CONFIG.FALLBACK.ENABLED) {
+      const style = req.body.style || 'photo';
+      return res.json({
+        success: false,
+        fallback: true,
+        error: 'DeepSeek API is currently experiencing high load. Please try again later.',
+        style: style
       });
-      throw new Error(errorData.message || 'Failed to generate image');
     }
 
     const data = await response.json();
@@ -55,7 +55,13 @@ router.post('/', async (req, res, next) => {
     });
   } catch (error) {
     console.error('Generate Error:', error);
-    next(error);
+    const style = req.body.style || 'photo';
+    res.json({
+      success: false,
+      fallback: true,
+      error: 'DeepSeek API is currently experiencing high load. Please try again later.',
+      style: style
+    });
   }
 });
 

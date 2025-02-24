@@ -529,3 +529,33 @@ main().catch(console.error);
      });
    });
    ``` 
+
+## 2024-02-24: DeepSeek API 服务负载问题
+
+### 问题描述
+- 状态：🔴 严重
+- 类型：服务端负载问题
+- 错误表现：
+  - ECONNRESET (连接重置)
+  - 504 Model service timeout
+  - Connect Timeout Error
+
+### 临时解决方案
+采用服务降级处理：
+1. 添加服务状态检查
+2. 不可用时显示示例图片
+3. 提供友好的状态提示
+
+### 后续计划
+1. 监控 API 服务状态
+2. API 恢复后切换回正常模式
+3. 考虑添加服务可用性检测
+
+### 相关配置
+```javascript
+// 当前配置
+TIMEOUT: 180000,
+RETRY: 3,
+quality: 'draft',
+num_inference_steps: 20
+``` 
