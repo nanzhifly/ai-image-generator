@@ -76,7 +76,7 @@ retryDelay: 1000,  // 1 秒
 
 // OSS 认证头
 headers: {
-    'Authorization': `Bearer ${API_KEY}`,
+    'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
     'Origin': 'https://api.siliconflow.cn',
     'Referer': 'https://api.siliconflow.cn/',
     'User-Agent': 'DeepSeek-Image-Generator'
@@ -321,3 +321,20 @@ POST /api/generate  # 图片生成
   "style": "photo"
 }
 ``` 
+
+## API 安全配置
+```javascript
+// API 请求头配置
+headers: {
+  'Content-Type': 'application/json',
+  'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+  'Origin': 'https://api.siliconflow.cn',
+  'Referer': 'https://api.siliconflow.cn/',
+  'User-Agent': 'DeepSeek-Image-Generator'
+}
+```
+
+### 安全最佳实践
+- API Key 只在服务器端使用
+- 前端不传递敏感信息
+- 使用环境变量管理密钥 

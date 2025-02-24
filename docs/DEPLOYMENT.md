@@ -260,3 +260,54 @@ curl http://localhost:8080
 - [x] 请求超时优化
 - [x] 重试机制完善
 - [x] 错误处理改进
+
+## Vercel 部署更新记录
+
+### 2024-02-24
+- 部署版本：v1.0.1
+- 更新内容：
+  - 添加 API 降级处理
+  - 优化错误提示
+  - 移除前端敏感信息
+- 部署状态：✅ 成功
+
+## Vercel 部署指南
+
+### 环境变量
+- DEEPSEEK_API_KEY: 已配置（所有环境）
+- 环境：Development, Preview, Production
+
+### 环境变量配置历史
+- 2024-02-24: 重新配置 DEEPSEEK_API_KEY（直接值方式）
+
+### 部署流程
+1. 代码推送到 GitHub
+2. 确认环境变量存在
+   ```bash
+   vercel env ls
+   ```
+3. 执行部署
+   ```bash
+   # 删除本地 .vercel 配置（如果存在）
+   rm -rf .vercel
+
+   # 重新部署到生产环境
+   vercel --prod
+   ```
+
+### 部署历史
+- 生产环境：https://ai-image-generator-e7btwhfuv-nanzhis-projects-70b94b29.vercel.app
+- 最新部署：v1.0.1（2024-02-24）
+- 部署状态：✅ 成功
+- 部署时间：2s
+
+### 配置更新记录
+- 2024-02-24: 修复静态文件和 API 路由配置
+  - 添加静态文件处理
+  - 优化 API 路由配置
+  - 修复 404 问题
+  - 优化 Serverless Functions 配置（适配 Hobby 计划限制）
+  - 修复静态资源路径问题
+    - 更新静态文件构建配置
+    - 优化路由规则
+    - 修复样式文件访问

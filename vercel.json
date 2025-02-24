@@ -1,12 +1,12 @@
 {
   "version": 2,
   "builds": [
+    { "src": "./public/**", "use": "@vercel/static" },
     { "src": "start.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/start.js" }
-  ],
-  "env": {
-    "DEEPSEEK_API_KEY": "@deepseek_api_key"
-  }
+    { "src": "/api/(.*)", "dest": "/start.js" },
+    { "src": "/styles/(.*)", "dest": "/public/styles/$1" },
+    { "src": "/(.*)", "dest": "/public/$1" }
+  ]
 } 

@@ -23,8 +23,7 @@ router.post('/', async (req, res, next) => {
         'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
         'Origin': 'https://api.siliconflow.cn',
         'Referer': 'https://api.siliconflow.cn/',
-        'User-Agent': 'DeepSeek-Image-Generator',
-        ...API_CONFIG.REQUEST.HEADERS
+        'User-Agent': 'DeepSeek-Image-Generator'
       },
       timeout: API_CONFIG.REQUEST.TIMEOUT,
       retry: API_CONFIG.REQUEST.RETRY,
